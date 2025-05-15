@@ -1,297 +1,376 @@
 
 import { ArrayElement } from "../algorithms";
 
-// Binary Exponentiation (fast power calculation)
-export const binaryExponentiation = (base: number, exponent: number): ArrayElement[][] => {
-  const steps: ArrayElement[][] = [];
-  let result = 1;
-  let b = base;
-  let e = exponent;
-  
-  // Initial state
-  const initialElements: ArrayElement[] = [
-    { value: result, state: "default" },
-    { value: b, state: "default" },
-    { value: e, state: "default" }
-  ];
-  
-  steps.push([...initialElements]);
-  
-  // Binary exponentiation algorithm
-  while (e > 0) {
-    // Highlight current values
-    const currentElements: ArrayElement[] = [
-      { value: result, state: "current" },
-      { value: b, state: "default" },
-      { value: e, state: "comparing" }
-    ];
-    steps.push([...currentElements]);
-    
-    if (e % 2 === 1) {
-      result *= b;
-      
-      // Show the update of result
-      const updateElements: ArrayElement[] = [
-        { value: result, state: "comparing" },
-        { value: b, state: "current" },
-        { value: e, state: "comparing" }
-      ];
-      steps.push([...updateElements]);
-    }
-    
-    b *= b;
-    e = Math.floor(e / 2);
-    
-    // Show the updates
-    const stepElements: ArrayElement[] = [
-      { value: result, state: "default" },
-      { value: b, state: "comparing" },
-      { value: e, state: "current" }
-    ];
-    steps.push([...stepElements]);
-  }
-  
-  // Final state
-  const finalElements: ArrayElement[] = [
-    { value: result, state: "sorted" },
-    { value: b, state: "default" },
-    { value: e, state: "default" }
-  ];
-  steps.push([...finalElements]);
-  
-  return steps;
-};
-
-// Euclidean algorithm for GCD
+// GCD algorithm
 export const gcd = (a: number, b: number): ArrayElement[][] => {
   const steps: ArrayElement[][] = [];
   
-  // Initial state
-  const initialElements: ArrayElement[] = [
+  // Convert to array elements for visualization
+  const initialStep: ArrayElement[] = [
     { value: a, state: "default" },
     { value: b, state: "default" }
   ];
   
-  steps.push([...initialElements]);
+  steps.push([...initialStep]);
   
   // Euclidean algorithm
   while (b !== 0) {
-    // Highlight current values
-    const compareElements: ArrayElement[] = [
+    // Highlight the values being compared
+    const compareStep: ArrayElement[] = [
       { value: a, state: "comparing" },
       { value: b, state: "comparing" }
     ];
-    steps.push([...compareElements]);
+    steps.push([...compareStep]);
     
+    // Calculate remainder
     const remainder = a % b;
     
-    // Show the calculation
-    const calculateElements: ArrayElement[] = [
-      { value: a, state: "current" },
+    // Show calculation step
+    const calculationStep: ArrayElement[] = [
+      { value: a, state: "default" },
       { value: b, state: "current" },
-      { value: remainder, state: "comparing" }
+      { value: remainder, state: "new" }
     ];
-    steps.push([...calculateElements]);
+    steps.push([...calculationStep]);
     
+    // Update values for next iteration
     a = b;
     b = remainder;
     
-    // Show the updates
-    if (b !== 0) {
-      const updateElements: ArrayElement[] = [
-        { value: a, state: "default" },
-        { value: b, state: "default" }
-      ];
-      steps.push([...updateElements]);
+    // Show updated values
+    const updateStep: ArrayElement[] = [
+      { value: a, state: "default" },
+      { value: b, state: "default" }
+    ];
+    
+    if (b === 0) {
+      updateStep[0].state = "found"; // Final GCD
     }
+    
+    steps.push([...updateStep]);
   }
   
-  // Final state - a contains the GCD
-  const finalElements: ArrayElement[] = [
-    { value: a, state: "sorted" }
+  // Highlight final result
+  const finalStep: ArrayElement[] = [
+    { value: a, state: "found" }
   ];
-  steps.push([...finalElements]);
+  
+  steps.push([...finalStep]);
   
   return steps;
 };
 
-// Fibonacci sequence generation
+// Fibonacci numbers
 export const fibonacci = (n: number): ArrayElement[][] => {
   const steps: ArrayElement[][] = [];
   
-  if (n <= 0) return steps;
-  
-  if (n === 1) {
-    steps.push([{ value: 1, state: "sorted" }]);
+  if (n <= 0) {
     return steps;
   }
   
+  // F(0) = 0
+  const step0: ArrayElement[] = [{ value: 0, state: "found" }];
+  steps.push([...step0]);
+  
+  if (n === 1) {
+    return steps;
+  }
+  
+  // F(1) = 1
+  const step1: ArrayElement[] = [
+    { value: 0, state: "default" },
+    { value: 1, state: "found" }
+  ];
+  steps.push([...step1]);
+  
+  // Calculate remaining Fibonacci numbers
   let a = 0;
   let b = 1;
   
-  // Initial state
-  const initialElements: ArrayElement[] = [
-    { value: a, state: "default" },
-    { value: b, state: "default" }
-  ];
-  
-  steps.push([...initialElements]);
-  
-  // Generate Fibonacci sequence
   for (let i = 2; i <= n; i++) {
-    // Highlight current values
-    const compareElements: ArrayElement[] = [
-      { value: a, state: "comparing" },
-      { value: b, state: "comparing" }
-    ];
-    steps.push([...compareElements]);
-    
-    const nextFib = a + b;
-    
-    // Show the calculation
-    const calculateElements: ArrayElement[] = [
-      { value: a, state: "current" },
-      { value: b, state: "current" },
-      { value: nextFib, state: "comparing" }
-    ];
-    steps.push([...calculateElements]);
-    
-    a = b;
-    b = nextFib;
-    
-    // Show the updates
-    const fibSequence: ArrayElement[] = [];
-    for (let j = 0; j <= i; j++) {
-      if (j === i) {
-        fibSequence.push({ value: b, state: "current" });
-      } else if (j === i - 1) {
-        fibSequence.push({ value: a, state: "default" });
-      } else {
-        // Previous Fibonacci numbers
-        const fibValue = Math.round(b * (1 - Math.sqrt(5)) / (1 + Math.sqrt(5)) ** j);
-        fibSequence.push({ value: fibValue, state: "sorted" });
+    // Highlight previous two numbers
+    const highlightStep: ArrayElement[] = Array(i).fill({ value: 0, state: "default" }).map(
+      (_, idx, arr) => {
+        if (idx === i - 1) return { value: b, state: "comparing" };
+        if (idx === i - 2) return { value: a, state: "comparing" };
+        return { value: arr[idx].value, state: "default" } as ArrayElement;
       }
-    }
-    steps.push([...fibSequence]);
+    );
+    steps.push([...highlightStep]);
+    
+    // Calculate next Fibonacci number
+    const c = a + b;
+    
+    // Show calculation
+    const calculationStep: ArrayElement[] = Array(i + 1).fill({ value: 0, state: "default" }).map(
+      (_, idx, arr) => {
+        if (idx === i) return { value: c, state: "new" };
+        if (idx === i - 1) return { value: b, state: "default" };
+        if (idx === i - 2) return { value: a, state: "default" };
+        return { value: arr[idx].value, state: "default" } as ArrayElement;
+      }
+    );
+    steps.push([...calculationStep]);
+    
+    // Update values for next iteration
+    a = b;
+    b = c;
   }
   
-  // Final state
-  const finalSequence: ArrayElement[] = [];
-  for (let i = 0; i <= n; i++) {
-    if (i === n) {
-      finalSequence.push({ value: b, state: "sorted" });
-    } else if (i === n - 1) {
-      finalSequence.push({ value: a, state: "sorted" });
-    } else {
-      // Previous Fibonacci numbers with approximate calculation
-      const fibValue = Math.round(b * (1 - Math.sqrt(5)) / (1 + Math.sqrt(5)) ** i);
-      finalSequence.push({ value: fibValue, state: "sorted" });
-    }
+  // Final Fibonacci sequence
+  const fibSequence: ArrayElement[] = [];
+  a = 0;
+  b = 1;
+  fibSequence.push({ value: a, state: "default" });
+  fibSequence.push({ value: b, state: "default" });
+  
+  for (let i = 2; i <= n; i++) {
+    const c = a + b;
+    fibSequence.push({ value: c, state: i === n ? "found" : "default" });
+    a = b;
+    b = c;
   }
-  steps.push([...finalSequence]);
+  
+  steps.push([...fibSequence]);
   
   return steps;
 };
 
-// Sieve of Eratosthenes for finding prime numbers
+// Sieve of Eratosthenes
 export const sieveOfEratosthenes = (n: number): ArrayElement[][] => {
   const steps: ArrayElement[][] = [];
+  const primes: boolean[] = new Array(n + 1).fill(true);
   
-  if (n <= 1) return steps;
+  // 0 and 1 are not prime
+  primes[0] = false;
+  primes[1] = false;
   
-  // Create initial array with all numbers from 2 to n
-  const sieve: ArrayElement[] = Array.from({ length: n - 1 }, (_, i) => ({ 
-    value: i + 2, 
-    state: "default" 
+  // Initial state
+  const initialState: ArrayElement[] = Array.from({ length: n + 1 }, (_, i) => ({
+    value: i,
+    state: i <= 1 ? "comparing" : "default"
   }));
+  steps.push([...initialState]);
   
-  steps.push([...sieve]);
+  // Mark 0 and 1 as not prime
+  const step1: ArrayElement[] = Array.from({ length: n + 1 }, (_, i) => ({
+    value: i,
+    state: i <= 1 ? "sorted" : "default"
+  }));
+  steps.push([...step1]);
   
-  // Apply sieve algorithm
-  for (let i = 0; i < sieve.length; i++) {
-    if (sieve[i].state === "sorted") continue;
-    
-    const prime = sieve[i].value;
-    
-    // Highlight current prime
-    const currentSieve = sieve.map((el, idx) => ({
-      ...el,
-      state: idx === i ? "current" : el.state
-    }));
-    steps.push([...currentSieve]);
-    
-    // Mark current number as prime
-    sieve[i].state = "sorted";
-    
-    // Mark multiples as not prime
-    for (let j = i + prime; j < sieve.length; j += prime) {
-      // Show the marking process
-      const markingSieve = sieve.map((el, idx) => {
-        if (idx === j) return { ...el, state: "comparing" };
-        return { ...el };
-      });
-      steps.push([...markingSieve]);
+  // Find all primes
+  for (let p = 2; p * p <= n; p++) {
+    if (primes[p]) {
+      // Highlight current prime
+      const currentPrimeStep: ArrayElement[] = Array.from({ length: n + 1 }, (_, i) => ({
+        value: i,
+        state: i < p ? (primes[i] ? "found" : "sorted") : i === p ? "comparing" : "default"
+      }));
+      steps.push([...currentPrimeStep]);
       
-      // Actually mark as not prime
-      sieve[j].state = "current"; // Using "current" to indicate non-prime
+      // Mark multiples of p
+      for (let i = p * p; i <= n; i += p) {
+        primes[i] = false;
+        
+        // Highlight current multiple
+        const multipleStep: ArrayElement[] = Array.from({ length: n + 1 }, (_, j) => ({
+          value: j,
+          state: j < p ? (primes[j] ? "found" : "sorted") : 
+                 j === p ? "comparing" : 
+                 j === i ? "current" : 
+                 j < i && !primes[j] ? "sorted" : "default"
+        }));
+        steps.push([...multipleStep]);
+        
+        // Mark as not prime
+        const markStep: ArrayElement[] = Array.from({ length: n + 1 }, (_, j) => ({
+          value: j,
+          state: j < p ? (primes[j] ? "found" : "sorted") : 
+                 j === p ? "comparing" : 
+                 j <= i && !primes[j] ? "sorted" : "default"
+        }));
+        steps.push([...markStep]);
+      }
     }
-    
-    // Show the state after processing current prime
-    steps.push([...sieve]);
   }
   
-  // Final state - only primes are marked as "sorted"
-  const finalSieve = sieve.map(el => ({
-    ...el,
-    state: el.state === "default" ? "sorted" : el.state
+  // Final state - all primes found
+  const finalState: ArrayElement[] = Array.from({ length: n + 1 }, (_, i) => ({
+    value: i,
+    state: primes[i] ? "found" : "sorted"
   }));
-  steps.push([...finalSieve]);
+  steps.push([...finalState]);
   
   return steps;
 };
 
-// Primality test
+// Binary Exponentiation
+export const binaryExponentiation = (x: number, n: number): ArrayElement[][] => {
+  const steps: ArrayElement[][] = [];
+  
+  // Initial state
+  const initialState: ArrayElement[] = [
+    { value: x, state: "default" },
+    { value: n, state: "default" },
+    { value: 1, state: "current" } // Result starts at 1
+  ];
+  steps.push([...initialState]);
+  
+  let base = x;
+  let exponent = n;
+  let result = 1;
+  
+  while (exponent > 0) {
+    // Check if exponent is odd
+    const checkStep: ArrayElement[] = [
+      { value: base, state: "default" },
+      { value: exponent, state: "comparing" },
+      { value: result, state: "current" }
+    ];
+    steps.push([...checkStep]);
+    
+    if (exponent % 2 === 1) {
+      // Multiply result by base if exponent is odd
+      const oldResult = result;
+      result *= base;
+      
+      const multiplyStep: ArrayElement[] = [
+        { value: base, state: "comparing" },
+        { value: exponent, state: "default" },
+        { value: oldResult, state: "comparing" },
+        { value: result, state: "new" }
+      ];
+      steps.push([...multiplyStep]);
+    }
+    
+    // Square the base
+    const oldBase = base;
+    base *= base;
+    
+    // Integer divide the exponent
+    exponent = Math.floor(exponent / 2);
+    
+    const updateStep: ArrayElement[] = [
+      { value: oldBase, state: "comparing" },
+      { value: base, state: "new" },
+      { value: exponent, state: "current" },
+      { value: result, state: "default" }
+    ];
+    steps.push([...updateStep]);
+  }
+  
+  // Final result
+  const finalStep: ArrayElement[] = [
+    { value: x, state: "default" },
+    { value: n, state: "default" },
+    { value: result, state: "found" }
+  ];
+  steps.push([...finalStep]);
+  
+  return steps;
+};
+
+// Primality Test
 export const primalityTest = (n: number): ArrayElement[][] => {
   const steps: ArrayElement[][] = [];
   
+  // Initial value
+  const initialStep: ArrayElement[] = [
+    { value: n, state: "default" }
+  ];
+  steps.push([...initialStep]);
+  
   if (n <= 1) {
-    steps.push([{ value: n, state: "current" }]);
-    steps.push([{ value: n, state: "current" }, { value: 0, state: "sorted" }]); // 0 indicates not prime
+    // Not prime
+    const notPrimeStep: ArrayElement[] = [
+      { value: n, state: "sorted" } // Use "sorted" for non-prime
+    ];
+    steps.push([...notPrimeStep]);
     return steps;
   }
   
-  // Initial state
-  steps.push([{ value: n, state: "default" }]);
+  if (n <= 3) {
+    // Is prime
+    const primeStep: ArrayElement[] = [
+      { value: n, state: "found" } // Use "found" for prime
+    ];
+    steps.push([...primeStep]);
+    return steps;
+  }
   
-  // Check if n is divisible by any number from 2 to sqrt(n)
-  const limit = Math.floor(Math.sqrt(n));
+  if (n % 2 === 0 || n % 3 === 0) {
+    // Check divisibility by 2 and 3
+    const divisibleStep: ArrayElement[] = [
+      { value: n, state: "comparing" },
+      { value: n % 2 === 0 ? 2 : 3, state: "comparing" }
+    ];
+    steps.push([...divisibleStep]);
+    
+    // Not prime
+    const notPrimeStep: ArrayElement[] = [
+      { value: n, state: "sorted" } // Use "sorted" for non-prime
+    ];
+    steps.push([...notPrimeStep]);
+    return steps;
+  }
   
-  for (let i = 2; i <= limit; i++) {
-    // Show current check
-    const checkElements: ArrayElement[] = [
-      { value: n, state: "current" },
+  // Check divisibility by values of form 6k ± 1 up to sqrt(n)
+  for (let i = 5; i * i <= n; i += 6) {
+    // Check i
+    const checkI: ArrayElement[] = [
+      { value: n, state: "default" },
       { value: i, state: "comparing" }
     ];
-    steps.push([...checkElements]);
+    steps.push([...checkI]);
     
     if (n % i === 0) {
-      // Found a divisor, not prime
-      const resultElements: ArrayElement[] = [
-        { value: n, state: "current" },
-        { value: i, state: "comparing" },
-        { value: 0, state: "sorted" } // 0 indicates not prime
+      // Not prime, divisible by i
+      const divisibleStep: ArrayElement[] = [
+        { value: n, state: "comparing" },
+        { value: i, state: "found" },
+        { value: n / i, state: "found" }
       ];
-      steps.push([...resultElements]);
+      steps.push([...divisibleStep]);
+      
+      // Not prime
+      const notPrimeStep: ArrayElement[] = [
+        { value: n, state: "sorted" } // Use "sorted" for non-prime
+      ];
+      steps.push([...notPrimeStep]);
+      return steps;
+    }
+    
+    // Check i+2
+    const checkI2: ArrayElement[] = [
+      { value: n, state: "default" },
+      { value: i + 2, state: "comparing" }
+    ];
+    steps.push([...checkI2]);
+    
+    if (n % (i + 2) === 0) {
+      // Not prime, divisible by i+2
+      const divisibleStep: ArrayElement[] = [
+        { value: n, state: "comparing" },
+        { value: i + 2, state: "found" },
+        { value: n / (i + 2), state: "found" }
+      ];
+      steps.push([...divisibleStep]);
+      
+      // Not prime
+      const notPrimeStep: ArrayElement[] = [
+        { value: n, state: "sorted" } // Use "sorted" for non-prime
+      ];
+      steps.push([...notPrimeStep]);
       return steps;
     }
   }
   
-  // If we get here, n is prime
-  const finalElements: ArrayElement[] = [
-    { value: n, state: "current" },
-    { value: 1, state: "sorted" } // 1 indicates prime
+  // Is prime
+  const primeStep: ArrayElement[] = [
+    { value: n, state: "found" } // Use "found" for prime
   ];
-  steps.push([...finalElements]);
+  steps.push([...primeStep]);
   
   return steps;
 };

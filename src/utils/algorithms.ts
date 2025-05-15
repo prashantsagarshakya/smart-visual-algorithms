@@ -1,5 +1,6 @@
+
 // Define common types
-export type ElementState = "default" | "current" | "comparing" | "sorted" | "active" | "new" | "removing" | "found";
+export type ElementState = "default" | "current" | "comparing" | "sorted" | "active" | "new" | "removing" | "found" | "head" | "tail" | "visited";
 
 export interface ArrayElement {
   value: number;
@@ -13,7 +14,13 @@ export interface LinkedListNode {
 }
 
 export interface LinkedListStep {
-  head: LinkedListNode | null;
+  nodes: { 
+    value: number;
+    state: ElementState;
+    next: number | null; 
+  }[];
+  pointers?: { [key: string]: number | null };
+  head?: LinkedListNode | null;
   action?: string;
   newValue?: number;
   deleteIndex?: number;
@@ -35,8 +42,16 @@ export interface TreeNode {
 }
 
 export interface TreeStep {
+  nodes: {
+    value: number;
+    state: ElementState;
+    left: number | null;
+    right: number | null;
+  }[];
   root: TreeNode | null;
-  traversalOrder?: number[];
+  root?: number | null;
+  currentNode?: number | null;
+  traversalOrder?: number[]; 
   currentIndex?: number;
 }
 
@@ -60,6 +75,8 @@ export interface GraphStep {
   edges: GraphEdge[];
   visited?: number[];
   current?: number;
+  queue?: number[]; // Add this for BFS
+  stack?: number[]; // Add this for DFS
 }
 
 export interface HeapStep {
