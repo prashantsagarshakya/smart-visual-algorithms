@@ -106,3 +106,49 @@
     @apply font-code;
   }
 }
+
+/* Algorithm Visualizer specific styles */
+:root {
+  --algo-unsorted: #9b87f5;
+  --algo-comparing: #f97316;
+  --algo-sorted: #0ea5e9;
+  --algo-highlight: #d946ef;
+  --algo-background-dark: #1A1F2C;
+}
+
+.dark {
+  --algo-unsorted: #7E69AB;
+  --algo-comparing: #FEC6A1;
+  --algo-sorted: #33C3F0;
+  --algo-highlight: #D6BCFA;
+  --algo-background-dark: #1A1F2C;
+}
+
+.bg-algo-unsorted {
+  background-color: var(--algo-unsorted);
+}
+
+.bg-algo-comparing {
+  background-color: var(--algo-comparing);
+}
+
+.bg-algo-sorted {
+  background-color: var(--algo-sorted);
+}
+
+.bg-algo-highlight {
+  background-color: var(--algo-highlight);
+}
+
+.bg-algo-background-dark {
+  background-color: var(--algo-background-dark);
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}

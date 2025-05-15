@@ -1,9 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import * as algorithms from "../utils/algorithms";
 import { toast } from "@/hooks/use-toast";
-
-// Types for all visualizable data structures
-export type DataStructureType = "array" | "linkedList" | "stack" | "queue" | "tree" | "graph" | "heap";
 
 // Import all the algorithm types from our algorithms module
 import { 
@@ -12,10 +10,15 @@ import {
   StackQueueStep, 
   TreeStep, 
   GraphStep,
-  AlgorithmType,
+  HeapStep,
   AlgorithmCategory,
-  HeapStep
+  AlgorithmType,
+  algorithms as algoList,
+  categorizedAlgorithms
 } from "../utils/algorithms";
+
+// Types for all visualizable data structures
+export type DataStructureType = "array" | "linkedList" | "stack" | "queue" | "tree" | "graph" | "heap" | "math";
 
 // Union type for all possible visualization steps
 type VisualizationStep = ArrayElement[] | LinkedListStep | StackQueueStep | TreeStep | GraphStep | HeapStep;
@@ -133,6 +136,9 @@ export const VisualizerProvider = ({ children }: VisualizerProviderProps) => {
       case "heap":
         setAlgorithmState("buildHeap");
         break;
+      case "math":
+        setAlgorithmState("gcd");
+        break;
     }
   }, [dataStructure]);
 
@@ -147,7 +153,7 @@ export const VisualizerProvider = ({ children }: VisualizerProviderProps) => {
   // Function to set algorithm with type safety
   const setAlgorithm = (algo: AlgorithmType) => {
     // Check if algorithm belongs to current data structure
-    const algoInfo = algorithms.algorithms.find(a => a.id === algo);
+    const algoInfo = algoList.find(a => a.id === algo);
     
     if (algoInfo && algoInfo.category !== dataStructure) {
       // Switch data structure if needed
@@ -340,6 +346,23 @@ export const VisualizerProvider = ({ children }: VisualizerProviderProps) => {
           break;
         case "heapSort":
           algorithmSteps = algorithms.heapSort([...rawArrayData]);
+          break;
+          
+        // Math/Fundamental algorithms
+        case "gcd":
+          algorithmSteps = algorithms.gcd(rawArrayData[0], rawArrayData[1]);
+          break;
+        case "fibonacci":
+          algorithmSteps = algorithms.fibonacci(10); // Generate first 10 Fibonacci numbers
+          break;
+        case "sieveOfEratosthenes":
+          algorithmSteps = algorithms.sieveOfEratosthenes(30); // Find primes up to 30
+          break;
+        case "binaryExponentiation":
+          algorithmSteps = algorithms.binaryExponentiation(rawArrayData[0], 5); // Base^5
+          break;
+        case "primalityTest":
+          algorithmSteps = algorithms.primalityTest(rawArrayData[0]); // Test if first number is prime
           break;
       }
       

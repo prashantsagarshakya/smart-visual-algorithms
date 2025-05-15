@@ -1,622 +1,556 @@
-type ArrayElement = {
+// Define common types
+export type ElementState = "default" | "current" | "comparing" | "sorted" | "active" | "new" | "removing" | "found";
+
+export interface ArrayElement {
   value: number;
-  state: "default" | "comparing" | "sorted" | "current";
-};
+  state: ElementState;
+}
 
-// Types for different data structure visualizations
-export type LinkedListNode = {
+export interface LinkedListNode {
   value: number;
-  next: number | null;
-  state: "default" | "head" | "tail" | "current" | "visited" | "comparing";
-};
+  next: LinkedListNode | null;
+  state: ElementState;
+}
 
-export type LinkedListStep = {
-  nodes: LinkedListNode[];
-  pointers?: {
-    current: number;
-    prev?: number;
-    next?: number;
-  };
-};
+export interface LinkedListStep {
+  head: LinkedListNode | null;
+  action?: string;
+  newValue?: number;
+  deleteIndex?: number;
+}
 
-export type StackQueueStep = {
+export interface StackQueueStep {
   elements: ArrayElement[];
-  pointer?: number;
-  operation?: "push" | "pop" | "peek";
-};
+  action?: string;
+  value?: number;
+}
 
-export type TreeNode = {
+export interface TreeNode {
   value: number;
-  left: number | null;
-  right: number | null;
-  state: "default" | "current" | "visited" | "comparing";
-};
+  left: TreeNode | null;
+  right: TreeNode | null;
+  x: number;
+  y: number;
+  state: ElementState;
+}
 
-export type TreeStep = {
-  nodes: TreeNode[];
-  currentNode?: number;
-  visitOrder?: number[];
-};
+export interface TreeStep {
+  root: TreeNode | null;
+  traversalOrder?: number[];
+  currentIndex?: number;
+}
 
-export type GraphNode = {
+export interface GraphNode {
   id: number;
   value: string | number;
   x: number;
   y: number;
-  state: "default" | "current" | "visited" | "comparing";
-};
+  state: ElementState;
+}
 
-export type GraphEdge = {
+export interface GraphEdge {
   from: number;
   to: number;
   weight?: number;
-  state: "default" | "traversing" | "visited";
-};
+  state: ElementState;
+}
 
-export type GraphStep = {
+export interface GraphStep {
   nodes: GraphNode[];
   edges: GraphEdge[];
-  queue?: number[];
-  stack?: number[];
-  visitOrder?: number[];
-};
+  visited?: number[];
+  current?: number;
+}
 
-// Helper to create a deep copy of the array state
-const createArraySnapshot = (arr: ArrayElement[]): ArrayElement[] => {
-  return arr.map(element => ({ ...element }));
-};
+export interface HeapStep {
+  elements: ArrayElement[];
+  currentIndex?: number;
+  swapIndices?: [number, number];
+  heapified?: boolean[];
+}
 
-// Helper to update array elements with visual states
-const createNewStep = (
-  arr: ArrayElement[], 
-  indices: number[] = [], 
-  state: "default" | "comparing" | "sorted" | "current" = "default"
-): ArrayElement[] => {
-  const newArray = createArraySnapshot(arr);
-  
-  indices.forEach(index => {
-    if (index >= 0 && index < newArray.length) {
-      newArray[index].state = state;
-    }
-  });
-  
-  return newArray;
-};
-
-// Reset all elements to default state
-const resetArrayState = (arr: ArrayElement[], sortedIndices: number[] = []): ArrayElement[] => {
-  const newArray = arr.map(element => ({
-    ...element,
-    state: "default" as const
-  }));
-  
-  sortedIndices.forEach(index => {
-    if (index >= 0 && index < newArray.length) {
-      newArray[index].state = "sorted" as const;
-    }
-  });
-  
-  return newArray;
-};
-
-// Bubble sort algorithm with visualization steps
-export const bubbleSort = (array: number[]): ArrayElement[][] => {
+// Array sorting algorithms
+export const bubbleSort = (arr: number[]): ArrayElement[][] => {
   const steps: ArrayElement[][] = [];
-  const n = array.length;
-  
-  // Initialize array with default states
-  let currentArray: ArrayElement[] = array.map(value => ({
-    value,
-    state: "default" as const
-  }));
-  
-  steps.push(createArraySnapshot(currentArray));
-  
+  const n = arr.length;
+
+  // Initial state
+  const initialElements: ArrayElement[] = arr.map(value => ({ value, state: "default" }));
+  steps.push([...initialElements]);
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n - i - 1; j++) {
-      // Comparing elements
-      currentArray = resetArrayState(currentArray, Array.from({ length: n - i }, (_, k) => n - 1 - k));
-      currentArray = createNewStep(currentArray, [j, j + 1], "comparing");
-      steps.push(createArraySnapshot(currentArray));
-      
-      if (currentArray[j].value > currentArray[j + 1].value) {
-        // Swap elements if they are in wrong order
-        const temp = { ...currentArray[j] };
-        currentArray[j] = { ...currentArray[j + 1], state: "comparing" };
-        currentArray[j + 1] = { ...temp, state: "comparing" };
-        steps.push(createArraySnapshot(currentArray));
+      // Comparing state
+      const comparingElements: ArrayElement[] = arr.map((value, index) => ({
+        value,
+        state: index === j || index === j + 1 ? "comparing" : "default"
+      }));
+      steps.push([...comparingElements]);
+
+      if (arr[j] > arr[j + 1]) {
+        // Swap elements
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+
+        // Swapped state
+        const swappedElements: ArrayElement[] = arr.map((value, index) => ({
+          value,
+          state: index === j || index === j + 1 ? "current" : "default"
+        }));
+        steps.push([...swappedElements]);
       }
     }
-    
-    // Mark the largest element as sorted after this pass
-    currentArray = resetArrayState(currentArray, Array.from({ length: i + 1 }, (_, k) => n - 1 - k));
-    steps.push(createArraySnapshot(currentArray));
+
+    // Sorted state after each pass
+    const sortedElements: ArrayElement[] = arr.map((value, index) => ({
+      value,
+      state: index >= n - i - 1 ? "sorted" : "default"
+    }));
+    steps.push([...sortedElements]);
   }
-  
-  // Mark all elements as sorted in the final step
-  currentArray = currentArray.map(element => ({
-    ...element,
-    state: "sorted" as const
-  }));
-  steps.push(createArraySnapshot(currentArray));
-  
+
+  // Final sorted state
+  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" }));
+  steps.push([...finalElements]);
+
   return steps;
 };
 
-// Selection sort algorithm with visualization steps
-export const selectionSort = (array: number[]): ArrayElement[][] => {
+export const selectionSort = (arr: number[]): ArrayElement[][] => {
   const steps: ArrayElement[][] = [];
-  const n = array.length;
-  
-  // Initialize array with default states
-  let currentArray: ArrayElement[] = array.map(value => ({
-    value,
-    state: "default" as const
-  }));
-  
-  steps.push(createArraySnapshot(currentArray));
-  
+  const n = arr.length;
+
+  // Initial state
+  const initialElements: ArrayElement[] = arr.map(value => ({ value, state: "default" }));
+  steps.push([...initialElements]);
+
   for (let i = 0; i < n - 1; i++) {
-    let minIndex = i;
-    
-    // Mark current position
-    currentArray = resetArrayState(currentArray, Array.from({ length: i }, (_, k) => k));
-    currentArray = createNewStep(currentArray, [i], "current");
-    steps.push(createArraySnapshot(currentArray));
-    
+    let minIdx = i;
+
+    // Current state
+    const currentElements: ArrayElement[] = arr.map((value, index) => ({
+      value,
+      state: index === i ? "current" : "default"
+    }));
+    steps.push([...currentElements]);
+
     for (let j = i + 1; j < n; j++) {
-      // Comparing with current minimum
-      currentArray = resetArrayState(currentArray, Array.from({ length: i }, (_, k) => k));
-      currentArray[i].state = "current";
-      currentArray = createNewStep(currentArray, [minIndex !== i ? minIndex : -1], "comparing");
-      currentArray = createNewStep(currentArray, [j], "comparing");
-      steps.push(createArraySnapshot(currentArray));
-      
-      if (currentArray[j].value < currentArray[minIndex].value) {
-        if (minIndex !== i) {
-          currentArray[minIndex].state = "default";
-        }
-        minIndex = j;
-      } else {
-        currentArray[j].state = "default";
+      // Comparing state
+      const comparingElements: ArrayElement[] = arr.map((value, index) => ({
+        value,
+        state: index === j || index === minIdx ? "comparing" : "default"
+      }));
+      steps.push([...comparingElements]);
+
+      if (arr[j] < arr[minIdx]) {
+        minIdx = j;
       }
     }
-    
-    if (minIndex !== i) {
-      // Swap the found minimum element with the first element
-      currentArray = resetArrayState(currentArray, Array.from({ length: i }, (_, k) => k));
-      currentArray = createNewStep(currentArray, [i, minIndex], "comparing");
-      steps.push(createArraySnapshot(currentArray));
-      
-      const temp = { ...currentArray[i] };
-      currentArray[i] = { ...currentArray[minIndex], state: "comparing" };
-      currentArray[minIndex] = { ...temp, state: "comparing" };
-      steps.push(createArraySnapshot(currentArray));
+
+    // Swap the found minimum element with first element
+    if (minIdx !== i) {
+      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+
+      // Swapped state
+      const swappedElements: ArrayElement[] = arr.map((value, index) => ({
+        value,
+        state: index === i || index === minIdx ? "current" : "default"
+      }));
+      steps.push([...swappedElements]);
     }
-    
-    // Mark element as sorted
-    currentArray = resetArrayState(currentArray, Array.from({ length: i + 1 }, (_, k) => k));
-    steps.push(createArraySnapshot(currentArray));
+
+    // Sorted state after each pass
+    const sortedElements: ArrayElement[] = arr.map((value, index) => ({
+      value,
+      state: index <= i ? "sorted" : "default"
+    }));
+    steps.push([...sortedElements]);
   }
-  
-  // Mark all elements as sorted in the final step
-  currentArray = currentArray.map(element => ({
-    ...element,
-    state: "sorted" as const
-  }));
-  steps.push(createArraySnapshot(currentArray));
-  
+
+  // Final sorted state
+  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" }));
+  steps.push([...finalElements]);
+
   return steps;
 };
 
-// Insertion sort algorithm with visualization steps
-export const insertionSort = (array: number[]): ArrayElement[][] => {
+export const insertionSort = (arr: number[]): ArrayElement[][] => {
   const steps: ArrayElement[][] = [];
-  const n = array.length;
-  
-  // Initialize array with default states
-  let currentArray: ArrayElement[] = array.map(value => ({
-    value,
-    state: "default" as const
-  }));
-  
-  steps.push(createArraySnapshot(currentArray));
-  
-  // Mark first element as sorted
-  currentArray[0].state = "sorted";
-  steps.push(createArraySnapshot(currentArray));
-  
+  const n = arr.length;
+
+  // Initial state
+  const initialElements: ArrayElement[] = arr.map(value => ({ value, state: "default" }));
+  steps.push([...initialElements]);
+
   for (let i = 1; i < n; i++) {
-    // Current element to be inserted
-    let currentVal = currentArray[i].value;
+    let current = arr[i];
     let j = i - 1;
-    
-    // Mark current element
-    currentArray = resetArrayState(currentArray, Array.from({ length: i }, (_, k) => k));
-    currentArray = createNewStep(currentArray, [i], "current");
-    steps.push(createArraySnapshot(currentArray));
-    
-    while (j >= 0 && currentArray[j].value > currentVal) {
-      // Compare with sorted elements
-      currentArray = resetArrayState(currentArray, Array.from({ length: i }, (_, k) => k < j ? k : -1));
-      currentArray = createNewStep(currentArray, [j, j + 1], "comparing");
-      steps.push(createArraySnapshot(currentArray));
-      
-      // Shift elements
-      currentArray[j + 1] = { ...currentArray[j], state: "comparing" };
-      steps.push(createArraySnapshot(currentArray));
-      
+
+    // Current state
+    const currentElements: ArrayElement[] = arr.map((value, index) => ({
+      value,
+      state: index === i ? "current" : index <= i ? "default" : "default"
+    }));
+    steps.push([...currentElements]);
+
+    // Move elements greater than current to one position ahead
+    while (j >= 0 && arr[j] > current) {
+      // Comparing state
+      const comparingElements: ArrayElement[] = arr.map((value, index) => ({
+        value,
+        state: index === j || index === j + 1 ? "comparing" : index === i ? "current" : "default"
+      }));
+      steps.push([...comparingElements]);
+
+      arr[j + 1] = arr[j];
       j--;
+
+      // Shifted state
+      const shiftedElements: ArrayElement[] = arr.map((value, index) => ({
+        value,
+        state: index === j + 1 ? "current" : index === i ? "current" : "default"
+      }));
+      steps.push([...shiftedElements]);
     }
-    
-    // Insert the current element in its correct position
-    currentArray[j + 1] = {
-      value: currentVal,
-      state: "comparing" as const
-    };
-    steps.push(createArraySnapshot(currentArray));
-    
-    // Mark elements as sorted
-    currentArray = resetArrayState(currentArray, Array.from({ length: i + 1 }, (_, k) => k));
-    steps.push(createArraySnapshot(currentArray));
+
+    arr[j + 1] = current;
+
+    // Inserted state
+    const insertedElements: ArrayElement[] = arr.map((value, index) => ({
+      value,
+      state: index === j + 1 ? "current" : index <= i ? "default" : "default"
+    }));
+    steps.push([...insertedElements]);
+
+    // Sorted state after each pass
+    const sortedElements: ArrayElement[] = arr.map((value, index) => ({
+      value,
+      state: index <= i ? "sorted" : "default"
+    }));
+    steps.push([...sortedElements]);
   }
-  
-  // Mark all elements as sorted in the final step
-  currentArray = currentArray.map(element => ({
-    ...element,
-    state: "sorted" as const
-  }));
-  steps.push(createArraySnapshot(currentArray));
-  
+
+  // Final sorted state
+  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" }));
+  steps.push([...finalElements]);
+
   return steps;
 };
 
-// Linked List helpers
+// Linked List algorithms
 export const createLinkedList = (values: number[]): LinkedListStep => {
-  const nodes = values.map((value, index) => ({
-    value,
-    next: index < values.length - 1 ? index + 1 : null,
-    state: index === 0 ? "head" as const : index === values.length - 1 ? "tail" as const : "default" as const
-  }));
-  
-  return { nodes };
+  let head: LinkedListNode | null = null;
+  let current: LinkedListNode | null = null;
+
+  for (const value of values) {
+    const newNode: LinkedListNode = { value: value, next: null, state: "default" };
+    if (!head) {
+      head = newNode;
+      current = newNode;
+    } else {
+      if (current) {
+        current.next = newNode;
+        current = newNode;
+      }
+    }
+  }
+
+  return { head: head };
 };
 
 export const traverseLinkedList = (values: number[]): LinkedListStep[] => {
   const steps: LinkedListStep[] = [];
-  const initialList = createLinkedList(values);
-  steps.push(initialList);
-  
-  for (let i = 0; i < values.length; i++) {
-    const step = JSON.parse(JSON.stringify(initialList)) as LinkedListStep;
-    for (let j = 0; j <= i; j++) {
-      step.nodes[j].state = "visited";
+  let head: LinkedListNode | null = null;
+  let current: LinkedListNode | null = null;
+
+  // Create initial linked list
+  for (const value of values) {
+    const newNode: LinkedListNode = { value: value, next: null, state: "default" };
+    if (!head) {
+      head = newNode;
+      current = newNode;
+    } else {
+      if (current) {
+        current.next = newNode;
+        current = newNode;
+      }
     }
-    step.nodes[i].state = "current";
-    step.pointers = { current: i };
-    steps.push(step);
   }
-  
+
+  steps.push({ head: head });
+
+  // Traverse the linked list
+  current = head;
+  while (current !== null) {
+    // Set current node to "current" state
+    let stepHead: LinkedListNode | null = head;
+    while (stepHead !== null) {
+      stepHead.state = stepHead === current ? "current" : "default";
+      stepHead = stepHead.next;
+    }
+    steps.push({ head: head });
+
+    current = current.next;
+  }
+
+  // Reset all nodes to "default" state
+  let stepHead: LinkedListNode | null = head;
+  while (stepHead !== null) {
+    stepHead.state = "default";
+    stepHead = stepHead.next;
+  }
+  steps.push({ head: head });
+
   return steps;
 };
 
 export const insertAtBeginning = (values: number[], newValue: number): LinkedListStep[] => {
   const steps: LinkedListStep[] = [];
-  const initialList = createLinkedList(values);
-  steps.push(initialList);
-  
-  // Create new list with inserted node
-  const newNodes = [
-    { value: newValue, next: 0, state: "head" as const },
-    ...initialList.nodes.map((node, index) => ({
-      ...node,
-      state: index === 0 ? "default" as const : node.state === "tail" ? "tail" as const : "default" as const
-    }))
-  ];
-  
-  // Update next pointers
-  for (let i = 0; i < newNodes.length; i++) {
-    if (newNodes[i].next !== null) {
-      newNodes[i].next = newNodes[i].next! + 1;
+  let head: LinkedListNode | null = null;
+  let current: LinkedListNode | null = null;
+
+  // Create initial linked list
+  for (const value of values) {
+    const newNode: LinkedListNode = { value: value, next: null, state: "default" };
+    if (!head) {
+      head = newNode;
+      current = newNode;
+    } else {
+      if (current) {
+        current.next = newNode;
+        current = newNode;
+      }
     }
   }
-  
-  const newStep = { nodes: newNodes, pointers: { current: 0 } };
-  steps.push(newStep);
-  
-  // Show after adding
-  const finalStep = JSON.parse(JSON.stringify(newStep)) as LinkedListStep;
-  finalStep.nodes[0].state = "visited";
-  steps.push(finalStep);
-  
+
+  steps.push({ head: head });
+
+  // Insert new node at the beginning
+  const newNode: LinkedListNode = { value: newValue, next: head, state: "new" };
+  head = newNode;
+
+  steps.push({ head: head, action: "insert", newValue: newValue });
+
   return steps;
 };
 
-export const deleteNode = (values: number[], index: number): LinkedListStep[] => {
+export const deleteNode = (values: number[], deleteIndex: number): LinkedListStep[] => {
   const steps: LinkedListStep[] = [];
-  const initialList = createLinkedList(values);
-  steps.push(initialList);
-  
-  // Mark node to delete
-  const markStep = JSON.parse(JSON.stringify(initialList)) as LinkedListStep;
-  markStep.nodes[index].state = "comparing";
-  markStep.pointers = { current: index };
-  steps.push(markStep);
-  
-  // Create list without deleted node
-  const newNodes = initialList.nodes.filter((_, i) => i !== index);
-  
-  // Update next pointers and states
-  for (let i = 0; i < newNodes.length; i++) {
-    if (newNodes[i].next !== null && newNodes[i].next > index) {
-      newNodes[i].next = newNodes[i].next! - 1;
-    } else if (newNodes[i].next === index) {
-      newNodes[i].next = i < newNodes.length - 1 ? i + 1 : null;
+  let head: LinkedListNode | null = null;
+  let current: LinkedListNode | null = null;
+  let prev: LinkedListNode | null = null;
+
+  // Create initial linked list
+  for (const value of values) {
+    const newNode: LinkedListNode = { value: value, next: null, state: "default" };
+    if (!head) {
+      head = newNode;
+      current = newNode;
+    } else {
+      if (current) {
+        current.next = newNode;
+        current = newNode;
+      }
     }
-    
-    newNodes[i].state = i === 0 ? "head" : i === newNodes.length - 1 ? "tail" : "default";
   }
-  
-  steps.push({ nodes: newNodes });
-  
-  return steps;
-};
 
-// Stack and Queue operations
-export const push = (values: number[], newValue: number, type: "stack" | "queue"): StackQueueStep[] => {
-  const steps: StackQueueStep[] = [];
-  
-  // Initial state
-  const elements = values.map(value => ({
-    value,
-    state: "default" as const
-  }));
-  
-  steps.push({ elements });
-  
-  // Adding new element
-  const newElement = { value: newValue, state: "comparing" as const };
-  
-  if (type === "stack") {
-    // For stack, add to end (top)
-    steps.push({
-      elements: [...elements, newElement],
-      operation: "push"
-    });
-  } else {
-    // For queue, add to end
-    steps.push({
-      elements: [...elements, newElement],
-      operation: "push"
-    });
+  steps.push({ head: head });
+
+  // If head contains value to delete
+  if (head !== null && values[0] === deleteIndex) {
+    head = head.next;
+    steps.push({ head: head, action: "delete", deleteIndex: deleteIndex });
+    return steps;
   }
-  
-  // Final state with element added
-  const finalElements = [...elements, { ...newElement, state: "default" as const }];
-  steps.push({ elements: finalElements });
-  
+
+  current = head;
+  let index = 0;
+
+  // Search for the node to delete
+  while (current !== null && index !== deleteIndex) {
+    prev = current;
+    current = current.next;
+    index++;
+  }
+
+  // If node not found
+  if (current === null) {
+    return steps;
+  }
+
+  // Remove the node
+  if (prev !== null) {
+    prev.next = current.next;
+  }
+
+  steps.push({ head: head, action: "delete", deleteIndex: deleteIndex });
+
   return steps;
 };
 
-export const pop = (values: number[], type: "stack" | "queue"): StackQueueStep[] => {
-  if (values.length === 0) return [{ elements: [] }];
-  
+// Stack algorithms
+export const push = (stack: number[], value: number, type: "stack" | "queue"): StackQueueStep[] => {
   const steps: StackQueueStep[] = [];
-  
+
   // Initial state
-  const elements = values.map(value => ({
+  const initialElements: ArrayElement[] = stack.map(value => ({ value, state: "default" }));
+  steps.push({ elements: initialElements });
+
+  // Add element to top of stack
+  stack.push(value);
+
+  // Pushed state
+  const pushedElements: ArrayElement[] = stack.map((value, index) => ({
     value,
-    state: "default" as const
+    state: index === stack.length - 1 ? "new" : "default"
   }));
-  
-  steps.push({ elements });
-  
-  // Mark element to be removed
-  const markElements = [...elements];
-  const removeIndex = type === "stack" ? elements.length - 1 : 0; // Remove from end for stack, beginning for queue
-  markElements[removeIndex].state = "comparing";
-  
-  steps.push({
-    elements: markElements,
-    pointer: removeIndex,
-    operation: "pop"
-  });
-  
-  // Remove element
-  const newElements = markElements.filter((_, i) => i !== removeIndex);
-  steps.push({ elements: newElements });
-  
+  steps.push({ elements: pushedElements, action: "push", value: value });
+
   return steps;
 };
 
-export const peek = (values: number[], type: "stack" | "queue"): StackQueueStep[] => {
-  if (values.length === 0) return [{ elements: [] }];
-  
+export const pop = (stack: number[], type: "stack" | "queue"): StackQueueStep[] => {
   const steps: StackQueueStep[] = [];
-  
+
   // Initial state
-  const elements = values.map(value => ({
-    value,
-    state: "default" as const
-  }));
-  
-  steps.push({ elements });
-  
-  // Mark element to peek
-  const markElements = [...elements.map(el => ({ ...el }))];
-  const peekIndex = type === "stack" ? elements.length - 1 : 0; // Peek at end for stack, beginning for queue
-  markElements[peekIndex].state = "comparing";
-  
-  steps.push({
-    elements: markElements,
-    pointer: peekIndex,
-    operation: "peek"
-  });
-  
+  const initialElements: ArrayElement[] = stack.map(value => ({ value, state: "default" }));
+  steps.push({ elements: initialElements });
+
+  // Check if stack is empty
+  if (stack.length === 0) {
+    return steps;
+  }
+
+  // Remove and return top element
+  const poppedValue = stack.pop();
+
+  // Popped state
+  const poppedElements: ArrayElement[] = stack.map(value => ({ value, state: "default" }));
+  steps.push({ elements: poppedElements, action: "pop", value: poppedValue });
+
   return steps;
 };
 
-// Tree algorithms
+export const peek = (stack: number[], type: "stack" | "queue"): StackQueueStep[] => {
+  const steps: StackQueueStep[] = [];
+
+  // Initial state
+  const initialElements: ArrayElement[] = stack.map(value => ({ value, state: "default" }));
+  steps.push({ elements: initialElements });
+
+  // Check if stack is empty
+  if (stack.length === 0) {
+    return steps;
+  }
+
+  // Return top element without removing
+  const peekedValue = stack[stack.length - 1];
+
+  // Peeked state
+  const peekedElements: ArrayElement[] = stack.map((value, index) => ({
+    value,
+    state: index === stack.length - 1 ? "current" : "default"
+  }));
+  steps.push({ elements: peekedElements, action: "peek", value: peekedValue });
+
+  return steps;
+};
+
+// Tree traversal algorithms
 export const createBinaryTree = (values: number[]): TreeStep => {
+  if (!values || values.length === 0) {
+    return { root: null };
+  }
+
+  // Create nodes
   const nodes: TreeNode[] = values.map(value => ({
-    value,
+    value: value,
     left: null,
     right: null,
+    x: 0,
+    y: 0,
     state: "default"
   }));
-  
-  // Build binary tree connections (parent i has children at 2i+1 and 2i+2)
-  for (let i = 0; i < nodes.length; i++) {
-    const leftIndex = 2 * i + 1;
-    const rightIndex = 2 * i + 2;
-    
-    if (leftIndex < nodes.length) {
-      nodes[i].left = leftIndex;
+
+  // Build tree
+  for (let i = 0; i < values.length; i++) {
+    const leftChildIndex = 2 * i + 1;
+    const rightChildIndex = 2 * i + 2;
+
+    if (leftChildIndex < values.length) {
+      nodes[i].left = nodes[leftChildIndex];
     }
-    
-    if (rightIndex < nodes.length) {
-      nodes[i].right = rightIndex;
+    if (rightChildIndex < values.length) {
+      nodes[i].right = nodes[rightChildIndex];
     }
   }
-  
-  return { nodes };
+
+  // Set coordinates for visualization
+  setTreeCoordinates(nodes[0], 0, 50, 300);
+
+  return { root: nodes[0] };
+};
+
+const setTreeCoordinates = (node: TreeNode | null, level: number, xPos: number, xOffset: number) => {
+  if (!node) return;
+
+  node.x = xPos;
+  node.y = level * 70 + 50; // Adjust vertical spacing
+
+  setTreeCoordinates(node.left, level + 1, xPos - xOffset / 2, xOffset / 2);
+  setTreeCoordinates(node.right, level + 1, xPos + xOffset / 2, xOffset / 2);
 };
 
 export const inOrderTraversal = (values: number[]): TreeStep[] => {
   const steps: TreeStep[] = [];
   const tree = createBinaryTree(values);
-  
-  steps.push(tree);
-  
-  const visitOrder: number[] = [];
-  const inOrder = (index: number): void => {
-    if (index >= tree.nodes.length) return;
-    
-    const node = tree.nodes[index];
-    
-    // Traverse left
-    if (node.left !== null) {
-      const step = JSON.parse(JSON.stringify(tree)) as TreeStep;
-      step.currentNode = index;
-      step.nodes[index].state = "current";
-      steps.push(step);
-      
-      inOrder(node.left);
-    }
-    
-    // Visit node
-    visitOrder.push(index);
-    const visitStep = JSON.parse(JSON.stringify(tree)) as TreeStep;
-    visitStep.currentNode = index;
-    visitStep.nodes[index].state = "visited";
-    visitStep.visitOrder = [...visitOrder];
-    steps.push(visitStep);
-    
-    // Traverse right
-    if (node.right !== null) {
-      const step = JSON.parse(JSON.stringify(tree)) as TreeStep;
-      step.currentNode = index;
-      step.nodes[index].state = "current";
-      steps.push(step);
-      
-      inOrder(node.right);
-    }
-  };
-  
-  inOrder(0);
-  
+  const traversalOrder: number[] = [];
+
+  function traverse(node: TreeNode | null) {
+    if (node === null) return;
+
+    traverse(node.left);
+    traversalOrder.push(node.value);
+    steps.push({ root: tree.root, traversalOrder: [...traversalOrder] });
+    traverse(node.right);
+  }
+
+  traverse(tree.root);
   return steps;
 };
 
 export const preOrderTraversal = (values: number[]): TreeStep[] => {
   const steps: TreeStep[] = [];
   const tree = createBinaryTree(values);
-  
-  steps.push(tree);
-  
-  const visitOrder: number[] = [];
-  const preOrder = (index: number): void => {
-    if (index >= tree.nodes.length) return;
-    
-    const node = tree.nodes[index];
-    
-    // Visit node first
-    visitOrder.push(index);
-    const visitStep = JSON.parse(JSON.stringify(tree)) as TreeStep;
-    visitStep.currentNode = index;
-    visitStep.nodes[index].state = "visited";
-    visitStep.visitOrder = [...visitOrder];
-    steps.push(visitStep);
-    
-    // Traverse left
-    if (node.left !== null) {
-      const step = JSON.parse(JSON.stringify(tree)) as TreeStep;
-      step.currentNode = index;
-      step.nodes[index].state = "current";
-      steps.push(step);
-      
-      preOrder(node.left);
-    }
-    
-    // Traverse right
-    if (node.right !== null) {
-      const step = JSON.parse(JSON.stringify(tree)) as TreeStep;
-      step.currentNode = index;
-      step.nodes[index].state = "current";
-      steps.push(step);
-      
-      preOrder(node.right);
-    }
-  };
-  
-  preOrder(0);
-  
+  const traversalOrder: number[] = [];
+
+  function traverse(node: TreeNode | null) {
+    if (node === null) return;
+
+    traversalOrder.push(node.value);
+    steps.push({ root: tree.root, traversalOrder: [...traversalOrder] });
+    traverse(node.left);
+    traverse(node.right);
+  }
+
+  traverse(tree.root);
   return steps;
 };
 
 export const postOrderTraversal = (values: number[]): TreeStep[] => {
   const steps: TreeStep[] = [];
   const tree = createBinaryTree(values);
-  
-  steps.push(tree);
-  
-  const visitOrder: number[] = [];
-  const postOrder = (index: number): void => {
-    if (index >= tree.nodes.length) return;
-    
-    const node = tree.nodes[index];
-    
-    // Traverse left
-    if (node.left !== null) {
-      const step = JSON.parse(JSON.stringify(tree)) as TreeStep;
-      step.currentNode = index;
-      step.nodes[index].state = "current";
-      steps.push(step);
-      
-      postOrder(node.left);
-    }
-    
-    // Traverse right
-    if (node.right !== null) {
-      const step = JSON.parse(JSON.stringify(tree)) as TreeStep;
-      step.currentNode = index;
-      step.nodes[index].state = "current";
-      steps.push(step);
-      
-      postOrder(node.right);
-    }
-    
-    // Visit node last
-    visitOrder.push(index);
-    const visitStep = JSON.parse(JSON.stringify(tree)) as TreeStep;
-    visitStep.currentNode = index;
-    visitStep.nodes[index].state = "visited";
-    visitStep.visitOrder = [...visitOrder];
-    steps.push(visitStep);
-  };
-  
-  postOrder(0);
-  
+  const traversalOrder: number[] = [];
+
+  function traverse(node: TreeNode | null) {
+    if (node === null) return;
+
+    traverse(node.left);
+    traverse(node.right);
+    traversalOrder.push(node.value);
+    steps.push({ root: tree.root, traversalOrder: [...traversalOrder] });
+  }
+
+  traverse(tree.root);
   return steps;
 };
 
@@ -625,123 +559,239 @@ export const createGraph = (
   nodes: { id: number; value: string | number; x: number; y: number }[],
   edges: { from: number; to: number; weight?: number }[]
 ): GraphStep => {
-  const graphNodes = nodes.map(node => ({
-    ...node,
-    state: "default" as const
-  }));
-  
-  const graphEdges = edges.map(edge => ({
-    ...edge,
-    state: "default" as const
-  }));
-  
+  const graphNodes: GraphNode[] = nodes.map(node => ({ ...node, state: "default" }));
+  const graphEdges: GraphEdge[] = edges.map(edge => ({ ...edge, state: "default" }));
+
   return { nodes: graphNodes, edges: graphEdges };
 };
 
-export const bfs = (startNodeId: number, graph: { nodes: any[], edges: any[] }): GraphStep[] => {
+export const bfs = (startNodeId: number, rawGraphData: {
+  nodes: { id: number; value: string | number; x: number; y: number }[];
+  edges: { from: number; to: number; weight?: number }[];
+}): GraphStep[] => {
   const steps: GraphStep[] = [];
-  
-  // Create initial graph state
-  const initialGraph = createGraph(graph.nodes, graph.edges);
-  steps.push(JSON.parse(JSON.stringify(initialGraph)));
-  
-  // BFS implementation
-  const visited: boolean[] = Array(graph.nodes.length).fill(false);
+  const { nodes, edges } = rawGraphData;
+
+  // Initialize graph
+  const initialGraph = createGraph(nodes, edges);
+  steps.push(initialGraph);
+
+  const graphNodes: GraphNode[] = initialGraph.nodes;
+  const graphEdges: GraphEdge[] = initialGraph.edges;
+
   const queue: number[] = [startNodeId];
-  const visitOrder: number[] = [];
-  
-  visited[startNodeId] = true;
-  
+  const visited: number[] = [startNodeId];
+
   while (queue.length > 0) {
-    const nodeId = queue.shift()!;
-    visitOrder.push(nodeId);
-    
+    const currentNodeId = queue.shift()!;
+
     // Mark current node as visited
-    const currentStep = JSON.parse(JSON.stringify(initialGraph)) as GraphStep;
-    currentStep.nodes[nodeId].state = "visited";
-    visitOrder.forEach((id, index) => {
-      if (index < visitOrder.length - 1) {
-        currentStep.nodes[id].state = "visited";
-      }
-    });
-    currentStep.queue = [...queue];
-    currentStep.visitOrder = [...visitOrder];
-    steps.push(currentStep);
-    
-    // Find all adjacent vertices
-    const adjacentEdges = graph.edges.filter(edge => edge.from === nodeId);
-    
-    for (const edge of adjacentEdges) {
-      if (!visited[edge.to]) {
-        visited[edge.to] = true;
-        queue.push(edge.to);
-        
-        // Show exploring edge and adjacent node
-        const exploreStep = JSON.parse(JSON.stringify(currentStep)) as GraphStep;
-        exploreStep.nodes[edge.to].state = "comparing";
-        exploreStep.edges.find(e => e.from === edge.from && e.to === edge.to)!.state = "traversing";
-        exploreStep.queue = [...queue];
-        steps.push(exploreStep);
+    const currentNodes = graphNodes.map(node => ({
+      ...node,
+      state: node.id === currentNodeId ? "current" : node.state
+    }));
+
+    steps.push({ nodes: currentNodes, edges: graphEdges, visited: [...visited], current: currentNodeId });
+
+    // Find neighbors
+    const neighbors = edges
+      .filter(edge => edge.from === currentNodeId)
+      .map(edge => edge.to);
+
+    for (const neighborId of neighbors) {
+      if (!visited.includes(neighborId)) {
+        queue.push(neighborId);
+        visited.push(neighborId);
+
+        // Mark neighbor as visited
+        const visitedNodes = graphNodes.map(node => ({
+          ...node,
+          state: visited.includes(node.id) ? "active" : node.state
+        }));
+
+        steps.push({ nodes: visitedNodes, edges: graphEdges, visited: [...visited], current: currentNodeId });
       }
     }
   }
-  
+
   return steps;
 };
 
-export const dfs = (startNodeId: number, graph: { nodes: any[], edges: any[] }): GraphStep[] => {
+export const dfs = (startNodeId: number, rawGraphData: {
+  nodes: { id: number; value: string | number; x: number; y: number }[];
+  edges: { from: number; to: number; weight?: number }[]
+}): GraphStep[] => {
   const steps: GraphStep[] = [];
-  
-  // Create initial graph state
-  const initialGraph = createGraph(graph.nodes, graph.edges);
-  steps.push(JSON.parse(JSON.stringify(initialGraph)));
-  
-  // DFS implementation
-  const visited: boolean[] = Array(graph.nodes.length).fill(false);
-  const visitOrder: number[] = [];
-  
-  const dfsUtil = (nodeId: number, stack: number[]) => {
-    visited[nodeId] = true;
-    visitOrder.push(nodeId);
-    
-    // Mark current node as visited
-    const currentStep = JSON.parse(JSON.stringify(initialGraph)) as GraphStep;
-    currentStep.nodes[nodeId].state = "current";
-    visitOrder.forEach((id, index) => {
-      if (index < visitOrder.length - 1) {
-        currentStep.nodes[id].state = "visited";
-      }
-    });
-    currentStep.stack = [...stack];
-    currentStep.visitOrder = [...visitOrder];
-    steps.push(currentStep);
-    
-    // Find all adjacent vertices
-    const adjacentEdges = graph.edges.filter(edge => edge.from === nodeId);
-    
-    for (const edge of adjacentEdges) {
-      if (!visited[edge.to]) {
-        // Show exploring edge and adjacent node
-        const exploreStep = JSON.parse(JSON.stringify(currentStep)) as GraphStep;
-        exploreStep.nodes[edge.to].state = "comparing";
-        exploreStep.edges.find(e => e.from === edge.from && e.to === edge.to)!.state = "traversing";
-        steps.push(exploreStep);
-        
-        dfsUtil(edge.to, [...stack, edge.to]);
+  const { nodes, edges } = rawGraphData;
+
+  // Initialize graph
+  const initialGraph = createGraph(nodes, edges);
+  steps.push(initialGraph);
+
+  const graphNodes: GraphNode[] = initialGraph.nodes;
+  const graphEdges: GraphEdge[] = initialGraph.edges;
+
+  const stack: number[] = [startNodeId];
+  const visited: number[] = [];
+
+  while (stack.length > 0) {
+    const currentNodeId = stack.pop()!;
+
+    if (!visited.includes(currentNodeId)) {
+      visited.push(currentNodeId);
+
+      // Mark current node as visited
+      const currentNodes = graphNodes.map(node => ({
+        ...node,
+        state: node.id === currentNodeId ? "current" : node.state
+      }));
+
+      steps.push({ nodes: currentNodes, edges: graphEdges, visited: [...visited], current: currentNodeId });
+
+      // Find neighbors
+      const neighbors = edges
+        .filter(edge => edge.from === currentNodeId)
+        .map(edge => edge.to);
+
+      for (const neighborId of neighbors) {
+        if (!visited.includes(neighborId)) {
+          stack.push(neighborId);
+
+          // Mark neighbor as visited
+          const visitedNodes = graphNodes.map(node => ({
+            ...node,
+            state: visited.includes(node.id) ? "active" : node.state
+          }));
+
+          steps.push({ nodes: visitedNodes, edges: graphEdges, visited: [...visited], current: currentNodeId });
+        }
       }
     }
-    
-    // Mark node as fully visited
-    const completeStep = JSON.parse(JSON.stringify(initialGraph)) as GraphStep;
-    completeStep.nodes[nodeId].state = "visited";
-    visitOrder.forEach(id => {
-      completeStep.nodes[id].state = "visited";
-    });
-    completeStep.visitOrder = [...visitOrder];
-    steps.push(completeStep);
+  }
+
+  return steps;
+};
+
+// Heap algorithms
+export const buildHeap = (arr: number[]): HeapStep[] => {
+  const steps: HeapStep[] = [];
+  const n = arr.length;
+
+  // Convert array to ArrayElement[]
+  const elements: ArrayElement[] = arr.map(value => ({ value, state: "default" }));
+
+  // Initial state
+  steps.push({ elements: [...elements] });
+
+  // Heapify down function
+  const heapifyDown = (arr: ArrayElement[], i: number, n: number) => {
+    let largest = i;
+    const left = 2 * i + 1;
+    const right = 2 * i + 2;
+
+    if (left < n && arr[left].value > arr[largest].value) {
+      largest = left;
+    }
+
+    if (right < n && arr[right].value > arr[largest].value) {
+      largest = right;
+    }
+
+    if (largest !== i) {
+      // Highlight the elements being swapped
+      const swapElements = arr.map((el, idx) => ({
+        ...el,
+        state: idx === i || idx === largest ? "comparing" : el.state
+      }));
+      steps.push({ elements: [...swapElements], swapIndices: [i, largest] });
+
+      // Swap elements
+      [arr[i], arr[largest]] = [arr[largest], arr[i]];
+
+      // Show the swapped state
+      const swappedElements = arr.map((el, idx) => ({
+        ...el,
+        state: idx === i || idx === largest ? "current" : el.state
+      }));
+      steps.push({ elements: [...swappedElements], swapIndices: [i, largest] });
+
+      heapifyDown(arr, largest, n);
+    }
   };
-  
-  dfsUtil(startNodeId, [startNodeId]);
-  
+
+  // Build heap
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    heapifyDown(elements, i, n);
+  }
+
+  // Final state
+  steps.push({ elements: [...elements] });
+
+  return steps;
+};
+
+export const heapSort = (arr: number[]): HeapStep[] => {
+  const steps: HeapStep[] = [];
+  const n = arr.length;
+
+  // Convert array to ArrayElement[]
+  const elements: ArrayElement[] = arr.map(value => ({ value, state: "default" }));
+
+  // Initial state
+  steps.push({ elements: [...elements] });
+
+  // Heapify function
+  const heapify = (arr: ArrayElement[], n: number, i: number) => {
+    let largest = i;
+    const left = 2 * i + 1;
+    const right = 2 * i + 2;
+
+    if (left < n && arr[left].value > arr[largest].value) {
+      largest = left;
+    }
+
+    if (right < n && arr[right].value > arr[largest].value) {
+      largest = right;
+    }
+
+    if (largest !== i) {
+      // Highlight the elements being swapped
+      const swapElements = arr.map((el, idx) => ({
+        ...el,
+        state: idx === i || idx === largest ? "comparing" : el.state
+      }));
+      steps.push({ elements: [...swapElements], swapIndices: [i, largest] });
+
+      // Swap elements
+      [arr[i], arr[largest]] = [arr[largest], arr[i]];
+
+      // Show the swapped state
+      const swappedElements = arr.map((el, idx) => ({
+        ...el,
+        state: idx === i || idx === largest ? "current" : el.state
+      }));
+      steps.push({ elements: [...swappedElements], swapIndices: [i, largest] });
+
+      heapify(arr, n, largest);
+    }
+  };
+
+  // Build max heap
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    heapify(elements, n, i);
+  }
+
+  // Extract elements one by one
+  for (let i = n - 1; i > 0; i--) {
+    // Move current root to end
+    [elements[0], elements[i]] = [elements[i], elements[0]];
+
+    // Call heapify on reduced heap
+    heapify(elements, i, 0);
+  }
+
+  // Final state
+  steps.push({ elements: [...elements] });
+
   return steps;
 };

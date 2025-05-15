@@ -6,9 +6,11 @@ export * from './stackQueueAlgorithms';
 export * from './treeAlgorithms';
 export * from './graphAlgorithms';
 export * from './heapAlgorithms';
+export * from './fundamentalAlgorithms';
 
 // Export types from the main algorithms file
 export type { 
+  ElementState,
   ArrayElement,
   LinkedListNode,
   LinkedListStep,
@@ -17,7 +19,8 @@ export type {
   TreeStep,
   GraphNode,
   GraphEdge,
-  GraphStep
+  GraphStep,
+  HeapStep
 } from '../algorithms';
 
 // Define algorithm categories and types
@@ -28,7 +31,8 @@ export type AlgorithmCategory =
   "queue" |
   "tree" |
   "graph" |
-  "heap";
+  "heap" |
+  "math";
 
 export type AlgorithmType = 
   // Array algorithms
@@ -44,7 +48,9 @@ export type AlgorithmType =
   // Graph algorithms
   "bfs" | "dfs" |
   // Heap algorithms
-  "buildHeap" | "heapSort";
+  "buildHeap" | "heapSort" |
+  // Math algorithms
+  "gcd" | "fibonacci" | "sieveOfEratosthenes" | "binaryExponentiation" | "primalityTest";
 
 export interface AlgorithmInfo {
   id: AlgorithmType;
@@ -175,6 +181,37 @@ export const algorithms: AlgorithmInfo[] = [
     name: "Heap Sort",
     category: "heap",
     description: "Sorts an array using a binary heap data structure."
+  },
+  // Math algorithms
+  {
+    id: "gcd",
+    name: "Euclidean GCD",
+    category: "math",
+    description: "Computes the greatest common divisor of two integers."
+  },
+  {
+    id: "fibonacci",
+    name: "Fibonacci Numbers",
+    category: "math",
+    description: "Generates the Fibonacci sequence where each number is the sum of the two preceding ones."
+  },
+  {
+    id: "sieveOfEratosthenes",
+    name: "Sieve of Eratosthenes",
+    category: "math",
+    description: "An algorithm for finding all prime numbers up to a specified integer."
+  },
+  {
+    id: "binaryExponentiation",
+    name: "Binary Exponentiation",
+    category: "math",
+    description: "A fast algorithm for calculating large powers of numbers."
+  },
+  {
+    id: "primalityTest",
+    name: "Primality Test",
+    category: "math",
+    description: "Determines if a number is prime by checking if it's divisible by any smaller number."
   }
 ];
 
@@ -187,5 +224,5 @@ export const categorizedAlgorithms = algorithms.reduce<Record<AlgorithmCategory,
     acc[algorithm.category].push(algorithm);
     return acc;
   },
-  { array: [], linkedList: [], stack: [], queue: [], tree: [], graph: [], heap: [] }
+  { array: [], linkedList: [], stack: [], queue: [], tree: [], graph: [], heap: [], math: [] }
 );

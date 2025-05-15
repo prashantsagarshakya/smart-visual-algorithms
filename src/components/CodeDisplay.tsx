@@ -291,6 +291,171 @@ const CodeDisplay: React.FC = () => {
   return result;
 }`;
 
+      // Heap algorithms
+      case "buildHeap":
+        return `function buildHeap(arr) {
+  const n = arr.length;
+  
+  // Start from last non-leaf node
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    heapifyDown(arr, i, n);
+  }
+  
+  return arr;
+}
+
+function heapifyDown(arr, i, n) {
+  let largest = i;
+  const left = 2 * i + 1;
+  const right = 2 * i + 2;
+  
+  // Compare with left child
+  if (left < n && arr[left] > arr[largest]) {
+    largest = left;
+  }
+  
+  // Compare with right child
+  if (right < n && arr[right] > arr[largest]) {
+    largest = right;
+  }
+  
+  // Swap and continue if needed
+  if (largest !== i) {
+    [arr[i], arr[largest]] = [arr[largest], arr[i]];
+    heapifyDown(arr, largest, n);
+  }
+}`;
+
+      case "heapSort":
+        return `function heapSort(arr) {
+  const n = arr.length;
+  
+  // Build max heap
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    heapify(arr, n, i);
+  }
+  
+  // Extract elements one by one
+  for (let i = n - 1; i > 0; i--) {
+    // Move current root to end
+    [arr[0], arr[i]] = [arr[i], arr[0]];
+    
+    // Call heapify on reduced heap
+    heapify(arr, i, 0);
+  }
+  
+  return arr;
+}
+
+function heapify(arr, n, i) {
+  let largest = i;
+  const left = 2 * i + 1;
+  const right = 2 * i + 2;
+  
+  if (left < n && arr[left] > arr[largest]) {
+    largest = left;
+  }
+  
+  if (right < n && arr[right] > arr[largest]) {
+    largest = right;
+  }
+  
+  if (largest !== i) {
+    [arr[i], arr[largest]] = [arr[largest], arr[i]];
+    heapify(arr, n, largest);
+  }
+}`;
+
+      // Math algorithms
+      case "gcd":
+        return `function gcd(a, b) {
+  while (b !== 0) {
+    const temp = b;
+    b = a % b;
+    a = temp;
+  }
+  return a;
+}`;
+
+      case "fibonacci":
+        return `function fibonacci(n) {
+  if (n <= 1) return n;
+  
+  let a = 0, b = 1;
+  
+  for (let i = 2; i <= n; i++) {
+    const temp = a + b;
+    a = b;
+    b = temp;
+  }
+  
+  return b;
+}`;
+
+      case "binaryExponentiation":
+        return `function binaryExponentiation(base, exponent) {
+  let result = 1;
+  
+  while (exponent > 0) {
+    // If exponent is odd, multiply result with base
+    if (exponent % 2 === 1) {
+      result *= base;
+    }
+    
+    // Square the base
+    base *= base;
+    
+    // Divide exponent by 2
+    exponent = Math.floor(exponent / 2);
+  }
+  
+  return result;
+}`;
+
+      case "sieveOfEratosthenes":
+        return `function sieveOfEratosthenes(n) {
+  // Create array of true values
+  const isPrime = Array(n + 1).fill(true);
+  isPrime[0] = isPrime[1] = false;
+  
+  // Mark multiples of each prime as not prime
+  for (let i = 2; i * i <= n; i++) {
+    if (isPrime[i]) {
+      for (let j = i * i; j <= n; j += i) {
+        isPrime[j] = false;
+      }
+    }
+  }
+  
+  // Collect all prime numbers
+  const primes = [];
+  for (let i = 2; i <= n; i++) {
+    if (isPrime[i]) {
+      primes.push(i);
+    }
+  }
+  
+  return primes;
+}`;
+
+      case "primalityTest":
+        return `function isPrime(n) {
+  if (n <= 1) return false;
+  if (n <= 3) return true;
+  
+  if (n % 2 === 0 || n % 3 === 0) return false;
+  
+  // Check all potential factors from 5 to sqrt(n)
+  // Using 6k±1 optimization
+  for (let i = 5; i * i <= n; i += 6) {
+    if (n % i === 0 || n % (i + 2) === 0) {
+      return false;
+    }
+  }
+  
+  return true;
+}`;
+
       default:
         return "// Select an algorithm to view code";
     }

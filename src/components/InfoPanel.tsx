@@ -8,6 +8,7 @@ const InfoPanel: React.FC = () => {
   
   const getAlgorithmInfo = () => {
     switch (algorithm) {
+      // Sorting algorithms
       case "bubbleSort":
         return {
           title: "Bubble Sort",
@@ -42,6 +43,99 @@ const InfoPanel: React.FC = () => {
             best: "O(n)",
             average: "O(n²)",
             worst: "O(n²)"
+          },
+          spaceComplexity: "O(1)",
+          stable: true
+        };
+      
+      // Heap algorithms
+      case "buildHeap":
+        return {
+          title: "Build Heap",
+          description: "Converts an array into a binary heap data structure where the parent node is always greater/smaller than its children.",
+          timeComplexity: {
+            best: "O(n)",
+            average: "O(n)",
+            worst: "O(n)"
+          },
+          spaceComplexity: "O(1)",
+          stable: false
+        };
+      
+      case "heapSort":
+        return {
+          title: "Heap Sort",
+          description: "Heap Sort is a comparison-based sorting algorithm that uses a binary heap data structure.",
+          timeComplexity: {
+            best: "O(n log n)",
+            average: "O(n log n)",
+            worst: "O(n log n)"
+          },
+          spaceComplexity: "O(1)",
+          stable: false
+        };
+      
+      // Math algorithms
+      case "gcd":
+        return {
+          title: "Euclidean GCD",
+          description: "Computes the greatest common divisor of two integers using Euclid's algorithm through repeated division.",
+          timeComplexity: {
+            best: "O(1)",
+            average: "O(log(min(a,b)))",
+            worst: "O(log(min(a,b)))"
+          },
+          spaceComplexity: "O(1)",
+          stable: true
+        };
+      
+      case "fibonacci":
+        return {
+          title: "Fibonacci Sequence",
+          description: "Generates the Fibonacci sequence where each number is the sum of the two preceding ones, usually starting with 0 and 1.",
+          timeComplexity: {
+            best: "O(n)",
+            average: "O(n)",
+            worst: "O(n)"
+          },
+          spaceComplexity: "O(1)",
+          stable: true
+        };
+      
+      case "sieveOfEratosthenes":
+        return {
+          title: "Sieve of Eratosthenes",
+          description: "An algorithm for finding all prime numbers up to a specified integer by iteratively marking multiples of each prime, starting from 2.",
+          timeComplexity: {
+            best: "O(n log log n)",
+            average: "O(n log log n)",
+            worst: "O(n log log n)"
+          },
+          spaceComplexity: "O(n)",
+          stable: true
+        };
+      
+      case "binaryExponentiation":
+        return {
+          title: "Binary Exponentiation",
+          description: "A technique to compute x^n using only O(log n) multiplications, by squaring the result in each step.",
+          timeComplexity: {
+            best: "O(log n)",
+            average: "O(log n)",
+            worst: "O(log n)"
+          },
+          spaceComplexity: "O(1)",
+          stable: true
+        };
+        
+      case "primalityTest":
+        return {
+          title: "Primality Test",
+          description: "Determines if a given number is prime by checking if it's divisible by any integer from 2 to √n.",
+          timeComplexity: {
+            best: "O(1)",
+            average: "O(√n)",
+            worst: "O(√n)"
           },
           spaceComplexity: "O(1)",
           stable: true

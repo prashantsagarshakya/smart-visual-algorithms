@@ -1,10 +1,11 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useVisualizer } from "../contexts/VisualizerContext";
-import { PlayCircle, PauseCircle, RotateCcw, StepBack, StepForward, List, ListTree, TreePine } from "lucide-react";
-import { algorithms, categorizedAlgorithms } from "../utils/algorithms/index";
+import { PlayCircle, PauseCircle, RotateCcw, StepBack, StepForward, List, ListTree, TreePine, Calculator } from "lucide-react";
+import { categorizedAlgorithms } from "../utils/algorithms/index";
 
 const ControlPanel: React.FC = () => {
   const { 
@@ -50,6 +51,8 @@ const ControlPanel: React.FC = () => {
       case "queue": return <List className="mr-2 h-4 w-4" />;
       case "tree": return <TreePine className="mr-2 h-4 w-4" />;
       case "graph": return <ListTree className="mr-2 h-4 w-4" />;
+      case "heap": return <TreePine className="mr-2 h-4 w-4" />;
+      case "math": return <Calculator className="mr-2 h-4 w-4" />;
       default: return null;
     }
   };
@@ -71,6 +74,12 @@ const ControlPanel: React.FC = () => {
         break;
       case "graph":
         generateNewGraph();
+        break;
+      case "heap":
+        generateNewArray();
+        break;
+      case "math":
+        generateNewArray(2); // For math algorithms that use small samples
         break;
     }
   };
@@ -144,6 +153,8 @@ const ControlPanel: React.FC = () => {
                 <SelectItem value="queue">Queue</SelectItem>
                 <SelectItem value="tree">Tree</SelectItem>
                 <SelectItem value="graph">Graph</SelectItem>
+                <SelectItem value="heap">Heap</SelectItem>
+                <SelectItem value="math">Math</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -159,7 +170,7 @@ const ControlPanel: React.FC = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {categorizedAlgorithms[dataStructure].map(algo => (
+                {categorizedAlgorithms[dataStructure]?.map(algo => (
                   <SelectItem key={algo.id} value={algo.id}>{algo.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -183,7 +194,9 @@ const ControlPanel: React.FC = () => {
                           dataStructure === "linkedList" ? "Linked List" :
                           dataStructure === "stack" ? "Stack" :
                           dataStructure === "queue" ? "Queue" :
-                          dataStructure === "tree" ? "Tree" : "Graph"}
+                          dataStructure === "tree" ? "Tree" :
+                          dataStructure === "graph" ? "Graph" : 
+                          dataStructure === "heap" ? "Heap" : "Data"}
             </Button>
           </div>
           
