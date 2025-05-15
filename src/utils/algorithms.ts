@@ -30,7 +30,7 @@ const createNewStep = (
 const resetArrayState = (arr: ArrayElement[], sortedIndices: number[] = []): ArrayElement[] => {
   const newArray = arr.map(element => ({
     ...element,
-    state: "default"
+    state: "default" as const
   }));
   
   sortedIndices.forEach(index => {
@@ -50,7 +50,7 @@ export const bubbleSort = (array: number[]): ArrayElement[][] => {
   // Initialize array with default states
   let currentArray: ArrayElement[] = array.map(value => ({
     value,
-    state: "default"
+    state: "default" as const
   }));
   
   steps.push(createArraySnapshot(currentArray));
@@ -79,7 +79,7 @@ export const bubbleSort = (array: number[]): ArrayElement[][] => {
   // Mark all elements as sorted in the final step
   currentArray = currentArray.map(element => ({
     ...element,
-    state: "sorted"
+    state: "sorted" as const
   }));
   steps.push(createArraySnapshot(currentArray));
   
@@ -94,7 +94,7 @@ export const selectionSort = (array: number[]): ArrayElement[][] => {
   // Initialize array with default states
   let currentArray: ArrayElement[] = array.map(value => ({
     value,
-    state: "default"
+    state: "default" as const
   }));
   
   steps.push(createArraySnapshot(currentArray));
@@ -145,7 +145,7 @@ export const selectionSort = (array: number[]): ArrayElement[][] => {
   // Mark all elements as sorted in the final step
   currentArray = currentArray.map(element => ({
     ...element,
-    state: "sorted"
+    state: "sorted" as const
   }));
   steps.push(createArraySnapshot(currentArray));
   
@@ -160,7 +160,7 @@ export const insertionSort = (array: number[]): ArrayElement[][] => {
   // Initialize array with default states
   let currentArray: ArrayElement[] = array.map(value => ({
     value,
-    state: "default"
+    state: "default" as const
   }));
   
   steps.push(createArraySnapshot(currentArray));
@@ -195,7 +195,7 @@ export const insertionSort = (array: number[]): ArrayElement[][] => {
     // Insert the current element in its correct position
     currentArray[j + 1] = {
       value: currentVal,
-      state: "comparing"
+      state: "comparing" as const
     };
     steps.push(createArraySnapshot(currentArray));
     
@@ -207,7 +207,7 @@ export const insertionSort = (array: number[]): ArrayElement[][] => {
   // Mark all elements as sorted in the final step
   currentArray = currentArray.map(element => ({
     ...element,
-    state: "sorted"
+    state: "sorted" as const
   }));
   steps.push(createArraySnapshot(currentArray));
   

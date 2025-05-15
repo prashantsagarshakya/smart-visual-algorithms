@@ -21,7 +21,8 @@ const ControlPanel: React.FC = () => {
     previousStep,
     generateNewArray,
     currentStep,
-    totalSteps
+    totalSteps,
+    array
   } = useVisualizer();
 
   const handleSpeedChange = (value: number[]) => {
