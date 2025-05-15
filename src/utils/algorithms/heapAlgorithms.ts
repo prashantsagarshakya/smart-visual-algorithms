@@ -16,7 +16,7 @@ const getRightChildIndex = (i: number) => 2 * i + 2;
 export const createHeap = (values: number[]): HeapStep => {
   const elements = values.map(value => ({
     value,
-    state: "default" as const
+    state: "default" as ElementState
   }));
   
   return { elements };
@@ -26,7 +26,7 @@ export const buildHeap = (values: number[]): HeapStep[] => {
   const steps: HeapStep[] = [];
   const elements = values.map(value => ({
     value,
-    state: "default" as const
+    state: "default" as ElementState
   }));
   
   steps.push({ elements: [...elements] });
@@ -42,7 +42,7 @@ export const buildHeap = (values: number[]): HeapStep[] => {
   // Mark all as heapified in final step
   const finalElements = elements.map(el => ({ 
     ...el, 
-    state: "sorted" as const 
+    state: "sorted" as ElementState 
   }));
   
   steps.push({ 
@@ -145,7 +145,7 @@ const heapifyDown = (
   // Mark as heapified
   heapified[i] = true;
   const heapifiedStep = elements.map(el => ({ ...el }));
-  heapifiedStep[i].state = "sorted";
+  heapifiedStep[i].state = "sorted" as ElementState;
   
   steps.push({ 
     elements: heapifiedStep,
@@ -160,7 +160,7 @@ export const heapSort = (values: number[]): ArrayElement[][] => {
   // Initial array
   const elements = values.map(value => ({
     value,
-    state: "default" as const
+    state: "default" as ElementState
   }));
   
   steps.push([...elements]);
@@ -197,16 +197,17 @@ export const heapSort = (values: number[]): ArrayElement[][] => {
     heapifyForSort(elements, 0, i, steps);
     
     // Mark the extracted element as sorted
-    elements[i].state = "sorted";
+    elements[i].state = "sorted" as ElementState;
   }
   
   // Mark all as sorted in final step
-  elements[0].state = "sorted";
+  elements[0].state = "sorted" as ElementState;
   steps.push([...elements]);
   
   return steps;
 };
 
+// Function for heap sort (separate from the heapifyDown function used in buildHeap)
 function heapifyForSort(
   elements: ArrayElement[],
   i: number,
@@ -255,6 +256,7 @@ function heapifyForSort(
     }));
     steps.push([...swappedArray]);
     
-    heapifySubtree(elements, largest, heapSize, steps);
+    // Recursive call to heapifyForSort (not heapifySubtree)
+    heapifyForSort(elements, largest, heapSize, steps);
   }
 }

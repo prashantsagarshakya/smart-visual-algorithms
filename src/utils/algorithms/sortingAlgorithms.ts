@@ -1,4 +1,5 @@
-import { ArrayElement } from "../algorithms";
+
+import { ArrayElement, ElementState } from "../algorithms";
 
 export const bubbleSort = (arr: number[]): ArrayElement[][] => {
   const steps: ArrayElement[][] = [];
@@ -33,13 +34,13 @@ export const bubbleSort = (arr: number[]): ArrayElement[][] => {
     // Sorted state after each pass
     const sortedElements: ArrayElement[] = arr.map((value, index) => ({
       value,
-      state: index >= n - i - 1 ? "sorted" : "default"
+      state: index >= n - i - 1 ? "sorted" as ElementState : "default"
     }));
     steps.push([...sortedElements]);
   }
 
   // Final sorted state
-  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" }));
+  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" as ElementState }));
   steps.push([...finalElements]);
 
   return steps;
@@ -91,13 +92,13 @@ export const selectionSort = (arr: number[]): ArrayElement[][] => {
     // Sorted state after each pass
     const sortedElements: ArrayElement[] = arr.map((value, index) => ({
       value,
-      state: index <= i ? "sorted" : "default"
+      state: index <= i ? "sorted" as ElementState : "default"
     }));
     steps.push([...sortedElements]);
   }
 
   // Final sorted state
-  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" }));
+  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" as ElementState }));
   steps.push([...finalElements]);
 
   return steps;
@@ -154,13 +155,13 @@ export const insertionSort = (arr: number[]): ArrayElement[][] => {
     // Sorted state after each pass
     const sortedElements: ArrayElement[] = arr.map((value, index) => ({
       value,
-      state: index <= i ? "sorted" as const : "default"
+      state: index <= i ? "sorted" as ElementState : "default"
     }));
     steps.push([...sortedElements]);
   }
 
   // Final sorted state
-  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" as const }));
+  const finalElements: ArrayElement[] = arr.map(value => ({ value, state: "sorted" as ElementState }));
   steps.push([...finalElements]);
 
   return steps;

@@ -1,5 +1,5 @@
 
-import { ArrayElement } from "../algorithms";
+import { ArrayElement, ElementState } from "../algorithms";
 
 // GCD algorithm
 export const gcd = (a: number, b: number): ArrayElement[][] => {
@@ -89,27 +89,23 @@ export const fibonacci = (n: number): ArrayElement[][] => {
   
   for (let i = 2; i <= n; i++) {
     // Highlight previous two numbers
-    const highlightStep: ArrayElement[] = Array(i).fill({ value: 0, state: "default" }).map(
-      (_, idx, arr) => {
-        if (idx === i - 1) return { value: b, state: "comparing" };
-        if (idx === i - 2) return { value: a, state: "comparing" };
-        return { value: arr[idx].value, state: "default" } as ArrayElement;
-      }
-    );
+    const highlightStep: ArrayElement[] = Array.from({ length: i }, (_, idx) => {
+      if (idx === i - 1) return { value: b, state: "comparing" as ElementState };
+      if (idx === i - 2) return { value: a, state: "comparing" as ElementState };
+      return { value: idx, state: "default" as ElementState };
+    });
     steps.push([...highlightStep]);
     
     // Calculate next Fibonacci number
     const c = a + b;
     
     // Show calculation
-    const calculationStep: ArrayElement[] = Array(i + 1).fill({ value: 0, state: "default" }).map(
-      (_, idx, arr) => {
-        if (idx === i) return { value: c, state: "new" };
-        if (idx === i - 1) return { value: b, state: "default" };
-        if (idx === i - 2) return { value: a, state: "default" };
-        return { value: arr[idx].value, state: "default" } as ArrayElement;
-      }
-    );
+    const calculationStep: ArrayElement[] = Array.from({ length: i + 1 }, (_, idx) => {
+      if (idx === i) return { value: c, state: "new" as ElementState };
+      if (idx === i - 1) return { value: b, state: "default" as ElementState };
+      if (idx === i - 2) return { value: a, state: "default" as ElementState };
+      return { value: idx, state: "default" as ElementState };
+    });
     steps.push([...calculationStep]);
     
     // Update values for next iteration
@@ -126,7 +122,7 @@ export const fibonacci = (n: number): ArrayElement[][] => {
   
   for (let i = 2; i <= n; i++) {
     const c = a + b;
-    fibSequence.push({ value: c, state: i === n ? "found" : "default" });
+    fibSequence.push({ value: c, state: i === n ? "found" as ElementState : "default" as ElementState });
     a = b;
     b = c;
   }
@@ -148,14 +144,14 @@ export const sieveOfEratosthenes = (n: number): ArrayElement[][] => {
   // Initial state
   const initialState: ArrayElement[] = Array.from({ length: n + 1 }, (_, i) => ({
     value: i,
-    state: i <= 1 ? "comparing" : "default"
+    state: i <= 1 ? "comparing" as ElementState : "default" as ElementState
   }));
   steps.push([...initialState]);
   
   // Mark 0 and 1 as not prime
   const step1: ArrayElement[] = Array.from({ length: n + 1 }, (_, i) => ({
     value: i,
-    state: i <= 1 ? "sorted" : "default"
+    state: i <= 1 ? "sorted" as ElementState : "default" as ElementState
   }));
   steps.push([...step1]);
   
@@ -165,7 +161,8 @@ export const sieveOfEratosthenes = (n: number): ArrayElement[][] => {
       // Highlight current prime
       const currentPrimeStep: ArrayElement[] = Array.from({ length: n + 1 }, (_, i) => ({
         value: i,
-        state: i < p ? (primes[i] ? "found" : "sorted") : i === p ? "comparing" : "default"
+        state: i < p ? (primes[i] ? "found" as ElementState : "sorted" as ElementState) : 
+               i === p ? "comparing" as ElementState : "default" as ElementState
       }));
       steps.push([...currentPrimeStep]);
       
@@ -176,19 +173,19 @@ export const sieveOfEratosthenes = (n: number): ArrayElement[][] => {
         // Highlight current multiple
         const multipleStep: ArrayElement[] = Array.from({ length: n + 1 }, (_, j) => ({
           value: j,
-          state: j < p ? (primes[j] ? "found" : "sorted") : 
-                 j === p ? "comparing" : 
-                 j === i ? "current" : 
-                 j < i && !primes[j] ? "sorted" : "default"
+          state: j < p ? (primes[j] ? "found" as ElementState : "sorted" as ElementState) : 
+                 j === p ? "comparing" as ElementState : 
+                 j === i ? "current" as ElementState : 
+                 j < i && !primes[j] ? "sorted" as ElementState : "default" as ElementState
         }));
         steps.push([...multipleStep]);
         
         // Mark as not prime
         const markStep: ArrayElement[] = Array.from({ length: n + 1 }, (_, j) => ({
           value: j,
-          state: j < p ? (primes[j] ? "found" : "sorted") : 
-                 j === p ? "comparing" : 
-                 j <= i && !primes[j] ? "sorted" : "default"
+          state: j < p ? (primes[j] ? "found" as ElementState : "sorted" as ElementState) : 
+                 j === p ? "comparing" as ElementState : 
+                 j <= i && !primes[j] ? "sorted" as ElementState : "default" as ElementState
         }));
         steps.push([...markStep]);
       }
@@ -198,7 +195,7 @@ export const sieveOfEratosthenes = (n: number): ArrayElement[][] => {
   // Final state - all primes found
   const finalState: ArrayElement[] = Array.from({ length: n + 1 }, (_, i) => ({
     value: i,
-    state: primes[i] ? "found" : "sorted"
+    state: primes[i] ? "found" as ElementState : "sorted" as ElementState
   }));
   steps.push([...finalState]);
   
