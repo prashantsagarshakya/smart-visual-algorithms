@@ -7,8 +7,8 @@ export * from './treeAlgorithms';
 export * from './graphAlgorithms';
 export * from './heapAlgorithms';
 
-// Re-export types from the main algorithms file
-export { 
+// Export types from the main algorithms file
+export type { 
   ArrayElement,
   LinkedListNode,
   LinkedListStep,
@@ -44,7 +44,7 @@ export type AlgorithmType =
   // Graph algorithms
   "bfs" | "dfs" |
   // Heap algorithms
-  "heapify" | "heapSort";
+  "buildHeap" | "heapSort";
 
 export interface AlgorithmInfo {
   id: AlgorithmType;
@@ -165,8 +165,8 @@ export const algorithms: AlgorithmInfo[] = [
   },
   // Heap algorithms
   {
-    id: "heapify",
-    name: "Heapify",
+    id: "buildHeap",
+    name: "Build Heap",
     category: "heap",
     description: "Converts an array into a binary heap data structure."
   },

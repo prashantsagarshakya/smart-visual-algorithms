@@ -22,7 +22,8 @@ export const createHeap = (values: number[]): HeapStep => {
   return { elements };
 };
 
-export const heapify = (values: number[]): HeapStep[] => {
+// Renamed from heapify to buildHeap to avoid name collision
+export const buildHeap = (values: number[]): HeapStep[] => {
   const steps: HeapStep[] = [];
   const elements = values.map(value => ({
     value,
@@ -167,7 +168,7 @@ export const heapSort = (values: number[]): ArrayElement[][] => {
   
   // Build max heap
   for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
-    heapify(elements, i, n, steps);
+    heapifySubtree(elements, i, n, steps);
   }
   
   // Extract elements one by one
@@ -192,7 +193,7 @@ export const heapSort = (values: number[]): ArrayElement[][] => {
     steps.push([...afterSwapArray]);
     
     // Heapify reduced heap
-    heapify(elements, 0, i, steps);
+    heapifySubtree(elements, 0, i, steps);
     
     // Mark the extracted element as sorted
     elements[i].state = "sorted";
@@ -205,7 +206,8 @@ export const heapSort = (values: number[]): ArrayElement[][] => {
   return steps;
 };
 
-function heapify(
+// Renamed from heapify to heapifySubtree to avoid name collision
+function heapifySubtree(
   elements: ArrayElement[],
   i: number,
   heapSize: number,
@@ -253,6 +255,6 @@ function heapify(
     }));
     steps.push([...swappedArray]);
     
-    heapify(elements, largest, heapSize, steps);
+    heapifySubtree(elements, largest, heapSize, steps);
   }
 }

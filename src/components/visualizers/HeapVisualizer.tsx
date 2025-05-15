@@ -21,7 +21,7 @@ const HeapVisualizer: React.FC = () => {
     // For heapSort algorithm
     elements = heapStep;
   } else if (heapStep.elements) {
-    // For heapify algorithm
+    // For buildHeap algorithm
     elements = heapStep.elements;
   }
   

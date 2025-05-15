@@ -1,10 +1,9 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import * as algorithms from "../utils/algorithms";
 import { toast } from "@/hooks/use-toast";
 
 // Types for all visualizable data structures
-export type DataStructureType = "array" | "linkedList" | "stack" | "queue" | "tree" | "graph";
+export type DataStructureType = "array" | "linkedList" | "stack" | "queue" | "tree" | "graph" | "heap";
 
 // Import all the algorithm types from our algorithms module
 import { 
@@ -14,11 +13,12 @@ import {
   TreeStep, 
   GraphStep,
   AlgorithmType,
-  AlgorithmCategory
+  AlgorithmCategory,
+  HeapStep
 } from "../utils/algorithms";
 
 // Union type for all possible visualization steps
-type VisualizationStep = ArrayElement[] | LinkedListStep | StackQueueStep | TreeStep | GraphStep;
+type VisualizationStep = ArrayElement[] | LinkedListStep | StackQueueStep | TreeStep | GraphStep | HeapStep;
 
 interface VisualizerContextType {
   // Current state
@@ -129,6 +129,9 @@ export const VisualizerProvider = ({ children }: VisualizerProviderProps) => {
         break;
       case "graph":
         setAlgorithmState("bfs");
+        break;
+      case "heap":
+        setAlgorithmState("buildHeap");
         break;
     }
   }, [dataStructure]);
@@ -329,6 +332,14 @@ export const VisualizerProvider = ({ children }: VisualizerProviderProps) => {
           break;
         case "dfs":
           algorithmSteps = algorithms.dfs(0, rawGraphData);
+          break;
+          
+        // Heap algorithms
+        case "buildHeap":
+          algorithmSteps = algorithms.buildHeap([...rawArrayData]);
+          break;
+        case "heapSort":
+          algorithmSteps = algorithms.heapSort([...rawArrayData]);
           break;
       }
       
