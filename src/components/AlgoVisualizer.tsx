@@ -11,7 +11,7 @@ const AlgoVisualizer: React.FC = () => {
     <VisualizerProvider>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-center">
-          Algorithm Visualizer
+          Data Structure & Algorithm Visualizer
         </h1>
         
         <div className="mb-8">

@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useVisualizer } from "../contexts/VisualizerContext";
-import { PlayCircle, PauseCircle, RotateCcw, StepBack, StepForward } from "lucide-react";
+import { PlayCircle, PauseCircle, RotateCcw, StepBack, StepForward, List, GraphIcon, Tree } from "lucide-react";
+import { categorizedAlgorithms } from "../utils/algorithms";
 
 const ControlPanel: React.FC = () => {
   const { 
+    dataStructure,
     algorithm, 
-    setAlgorithm, 
+    setAlgorithm,
+    setDataStructure,
     speed, 
     setSpeed,
     isRunning,
@@ -20,6 +23,9 @@ const ControlPanel: React.FC = () => {
     nextStep,
     previousStep,
     generateNewArray,
+    generateNewLinkedList,
+    generateNewTree,
+    generateNewGraph,
     currentStep,
     totalSteps,
     array
@@ -31,6 +37,43 @@ const ControlPanel: React.FC = () => {
 
   const handleArraySizeChange = (value: number[]) => {
     generateNewArray(value[0]);
+  };
+
+  const handleDataStructureChange = (value: string) => {
+    setDataStructure(value as any);
+  };
+
+  const getDataStructureIcon = () => {
+    switch(dataStructure) {
+      case "array": return <List className="mr-2 h-4 w-4" />;
+      case "linkedList": return <List className="mr-2 h-4 w-4" />;
+      case "stack": return <List className="mr-2 h-4 w-4" />;
+      case "queue": return <List className="mr-2 h-4 w-4" />;
+      case "tree": return <Tree className="mr-2 h-4 w-4" />;
+      case "graph": return <GraphIcon className="mr-2 h-4 w-4" />;
+      default: return null;
+    }
+  };
+
+  const generateNewDataStructure = () => {
+    switch(dataStructure) {
+      case "array":
+        generateNewArray();
+        break;
+      case "linkedList":
+        generateNewLinkedList();
+        break;
+      case "stack":
+      case "queue":
+        generateNewArray(5); // Use smaller size for stack/queue
+        break;
+      case "tree":
+        generateNewTree();
+        break;
+      case "graph":
+        generateNewGraph();
+        break;
+    }
   };
 
   return (
@@ -83,6 +126,30 @@ const ControlPanel: React.FC = () => {
         
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <div className="w-full md:w-48">
+            <p className="text-sm mb-1 dark:text-gray-300">Data Structure</p>
+            <Select 
+              value={dataStructure} 
+              onValueChange={handleDataStructureChange}
+              disabled={isRunning}
+            >
+              <SelectTrigger>
+                <div className="flex items-center">
+                  {getDataStructureIcon()}
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="array">Array</SelectItem>
+                <SelectItem value="linkedList">Linked List</SelectItem>
+                <SelectItem value="stack">Stack</SelectItem>
+                <SelectItem value="queue">Queue</SelectItem>
+                <SelectItem value="tree">Tree</SelectItem>
+                <SelectItem value="graph">Graph</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="w-full md:w-48">
             <p className="text-sm mb-1 dark:text-gray-300">Algorithm</p>
             <Select 
               value={algorithm} 
@@ -93,9 +160,9 @@ const ControlPanel: React.FC = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="bubbleSort">Bubble Sort</SelectItem>
-                <SelectItem value="selectionSort">Selection Sort</SelectItem>
-                <SelectItem value="insertionSort">Insertion Sort</SelectItem>
+                {categorizedAlgorithms[dataStructure].map(algo => (
+                  <SelectItem key={algo.id} value={algo.id}>{algo.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -112,22 +179,28 @@ const ControlPanel: React.FC = () => {
           </div>
           
           <div className="w-full md:w-48">
-            <Button variant="outline" onClick={() => generateNewArray()} disabled={isRunning && !isPaused}>
-              Generate New Array
+            <Button variant="outline" onClick={generateNewDataStructure} disabled={isRunning && !isPaused}>
+              Generate New {dataStructure === "array" ? "Array" : 
+                          dataStructure === "linkedList" ? "Linked List" :
+                          dataStructure === "stack" ? "Stack" :
+                          dataStructure === "queue" ? "Queue" :
+                          dataStructure === "tree" ? "Tree" : "Graph"}
             </Button>
           </div>
           
-          <div className="w-full md:w-48">
-            <p className="text-sm mb-1 dark:text-gray-300">Array Size</p>
-            <Slider
-              value={[array.length]}
-              min={5}
-              max={100}
-              step={5}
-              onValueChange={handleArraySizeChange}
-              disabled={isRunning && !isPaused}
-            />
-          </div>
+          {dataStructure === "array" && (
+            <div className="w-full md:w-48">
+              <p className="text-sm mb-1 dark:text-gray-300">Array Size</p>
+              <Slider
+                value={[array.length]}
+                min={5}
+                max={100}
+                step={5}
+                onValueChange={handleArraySizeChange}
+                disabled={isRunning && !isPaused}
+              />
+            </div>
+          )}
         </div>
       </div>
       
