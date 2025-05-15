@@ -1,11 +1,10 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useVisualizer } from "../contexts/VisualizerContext";
-import { PlayCircle, PauseCircle, RotateCcw, StepBack, StepForward, List, GraphIcon, Tree } from "lucide-react";
-import { categorizedAlgorithms } from "../utils/algorithms";
+import { PlayCircle, PauseCircle, RotateCcw, StepBack, StepForward, List, ListTree, TreePine } from "lucide-react";
+import { algorithms, categorizedAlgorithms } from "../utils/algorithms/index";
 
 const ControlPanel: React.FC = () => {
   const { 
@@ -49,8 +48,8 @@ const ControlPanel: React.FC = () => {
       case "linkedList": return <List className="mr-2 h-4 w-4" />;
       case "stack": return <List className="mr-2 h-4 w-4" />;
       case "queue": return <List className="mr-2 h-4 w-4" />;
-      case "tree": return <Tree className="mr-2 h-4 w-4" />;
-      case "graph": return <GraphIcon className="mr-2 h-4 w-4" />;
+      case "tree": return <TreePine className="mr-2 h-4 w-4" />;
+      case "graph": return <ListTree className="mr-2 h-4 w-4" />;
       default: return null;
     }
   };

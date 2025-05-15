@@ -5,6 +5,20 @@ export * from './linkedListAlgorithms';
 export * from './stackQueueAlgorithms';
 export * from './treeAlgorithms';
 export * from './graphAlgorithms';
+export * from './heapAlgorithms';
+
+// Re-export types from the main algorithms file
+export { 
+  ArrayElement,
+  LinkedListNode,
+  LinkedListStep,
+  StackQueueStep,
+  TreeNode,
+  TreeStep,
+  GraphNode,
+  GraphEdge,
+  GraphStep
+} from '../algorithms';
 
 // Define algorithm categories and types
 export type AlgorithmCategory = 
@@ -13,7 +27,8 @@ export type AlgorithmCategory =
   "stack" |
   "queue" |
   "tree" |
-  "graph";
+  "graph" |
+  "heap";
 
 export type AlgorithmType = 
   // Array algorithms
@@ -27,7 +42,9 @@ export type AlgorithmType =
   // Tree algorithms
   "inOrderTraversal" | "preOrderTraversal" | "postOrderTraversal" |
   // Graph algorithms
-  "bfs" | "dfs";
+  "bfs" | "dfs" |
+  // Heap algorithms
+  "heapify" | "heapSort";
 
 export interface AlgorithmInfo {
   id: AlgorithmType;
@@ -145,6 +162,19 @@ export const algorithms: AlgorithmInfo[] = [
     name: "Depth-First Search",
     category: "graph",
     description: "Explores as far as possible along each branch before backtracking."
+  },
+  // Heap algorithms
+  {
+    id: "heapify",
+    name: "Heapify",
+    category: "heap",
+    description: "Converts an array into a binary heap data structure."
+  },
+  {
+    id: "heapSort",
+    name: "Heap Sort",
+    category: "heap",
+    description: "Sorts an array using a binary heap data structure."
   }
 ];
 
@@ -157,5 +187,5 @@ export const categorizedAlgorithms = algorithms.reduce<Record<AlgorithmCategory,
     acc[algorithm.category].push(algorithm);
     return acc;
   },
-  { array: [], linkedList: [], stack: [], queue: [], tree: [], graph: [] }
+  { array: [], linkedList: [], stack: [], queue: [], tree: [], graph: [], heap: [] }
 );

@@ -6,6 +6,7 @@ import LinkedListVisualizer from "./visualizers/LinkedListVisualizer";
 import StackQueueVisualizer from "./visualizers/StackQueueVisualizer";
 import TreeVisualizer from "./visualizers/TreeVisualizer";
 import GraphVisualizer from "./visualizers/GraphVisualizer";
+import HeapVisualizer from "./visualizers/HeapVisualizer";
 
 const ArrayDisplay: React.FC = () => {
   const { dataStructure } = useVisualizer();
@@ -18,6 +19,7 @@ const ArrayDisplay: React.FC = () => {
       {(dataStructure === "stack" || dataStructure === "queue") && <StackQueueVisualizer />}
       {dataStructure === "tree" && <TreeVisualizer />}
       {dataStructure === "graph" && <GraphVisualizer />}
+      {dataStructure === "heap" && <HeapVisualizer />}
     </div>
   );
 };
